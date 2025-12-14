@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/header :: head}"></head>
+<body>
+<div th:replace="~{fragments/header :: header}"></div>
+
+<main class="main-content">
+    <div class="container">
+
+        <!-- Page Header -->
+        <div class="page-header">
+            <div>
+                <h1 class="page-title">Dashboard</h1>
+                <p style="color: var(--text-secondary); margin: 0;">Übersicht deiner Bewerbungen</p>
+            </div>
+        </div>
+
+        <!-- Statistics Cards -->
+        <div class="stats-grid">
+            <div class="stat-card">
+                <div class="stat-header">
+                    <div>
+                        <div class="stat-value" th:text="${totalCount} ?: 0">0</div>
+                        <div class="stat-label">Gesamt</div>
+                    </div>
+                    <div class="stat-icon primary">
+                        <i class="fas fa-briefcase"></i>
+                    </div>
+                </div>
+            </div>
+
+            <div class="stat-card">
+                <div class="stat-header">
+                    <div>
+                        <div class="stat-value" th:text="${activeCount} ?: 0">0</div>
+                        <div class="stat-label">Aktiv</div>
+                    </div>
+                    <div class="stat-icon warning">
+                        <i class="fas fa-hourglass-half"></i>
+                    </div>
+                </div>
+            </div>
+
+            <div class="stat-card">
+                <div class="stat-header">
+                    <div>
+                        <div class="stat-value" th:text="${interviewCount} ?: 0">0</div>
+                        <div class="stat-label">Vorstellungsgespräche</div>
+                    </div>
+                    <div class="stat-icon primary">
+                        <i class="fas fa-users"></i>
+                    </div>
+                </div>
+            </div>
+
+            <div class="stat-card">
+                <div class="stat-header">
+                    <div>
+                        <div class="stat-value" th:text="${offerCount} ?: 0">0</div>
+                        <div class="stat-label">Zusagen</div>
+                    </div>
+                    <div class="stat-icon success">
+                        <i class="fas fa-check-circle"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Recent Applications -->
+        <div class="card">
+            <div class="card-header">
+                <h2 class="card-title">Neueste Bewerbungen</h2>
+                <a href="/applications" class="btn btn-secondary btn-sm">
+                    Alle anzeigen <i class="fas fa-arrow-right"></i>
+                </a>
+            </div>
+            <div class="card-body">
+                <div th:if="${recentApplications != null and !recentApplications.isEmpty()}">
+                    <div class="applications-grid">
+                        <div th:each="app : ${recentApplications}" class="application-card"
+                             th:onclick="'window.location.href=\'/applications/' + ${app.id} + '\''">
+                            <div class="application-header">
+                                <div>
+                                    <h3 class="company-name" th:text="${app.companyName}">Firma</h3>
+                                    <p class="position-title" th:text="${app.position}">Position</p>
+                                </div>
+                                <span th:class="'status-badge status-' + ${#strings.toLowerCase(app.status)}"
+                                      th:text="${app.status?.displayName ?: 'Unbekannt'}">Status</span>
+                            </div>
+                            <div class="application-meta">
+                                <div class="meta-item">
+                                    <i class="fas fa-calendar meta-icon"></i>
+                                    <span th:text="${#temporals.format(app.applicationDate, 'dd.MM.yyyy')}">Datum</span>
+                                </div>
+                                <div class="meta-item" th:if="${app.deadline != null}">
+                                    <i class="fas fa-clock meta-icon"></i>
+                                    <span>Deadline: <span th:text="${#temporals.format(app.deadline, 'dd.MM.yyyy')}">Deadline</span></span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div th:if="${recentApplications == null or recentApplications.isEmpty()}" class="empty-state">
+                    <div class="empty-icon">📭</div>
+                    <h3>Noch keine Bewerbungen</h3>
+                    <p>Starte jetzt und erstelle deine erste Bewerbung!</p>
+                    <a href="/applications/new" class="btn btn-primary btn-lg">
+                        <i class="fas fa-plus"></i> Erste Bewerbung erstellen
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <!-- Upcoming Deadlines -->
+        <div class="card" th:if="${upcomingDeadlines != null and !upcomingDeadlines.isEmpty()}" style="margin-top: var(--spacing-xl);">
+            <div class="card-header">
+                <h2 class="card-title">Anstehende Deadlines</h2>
+            </div>
+            <div class="card-body">
+                <div class="applications-grid">
+                    <div th:each="app : ${upcomingDeadlines}" class="application-card">
+                        <div class="application-header">
+                            <div>
+                                <h3 class="company-name" th:text="${app.companyName}">Firma</h3>
+                                <p class="position-title" th:text="${app.position}">Position</p>
+                            </div>
+                            <span th:class="'status-badge status-' + ${#strings.toLowerCase(app.status)}"
+                                  th:text="${app.status?.displayName ?: 'Unbekannt'}">Status</span>
+                        </div>
+                        <div class="application-meta">
+                            <div class="meta-item">
+                                <i class="fas fa-exclamation-triangle meta-icon" style="color: #f59e0b;"></i>
+                                <span style="color: #f59e0b; font-weight: 600;">
+                                        Deadline: <span th:text="${#temporals.format(app.deadline, 'dd.MM.yyyy')}">Deadline</span>
+                                    </span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </div>
+</main>
+
+<div th:replace="~{fragments/footer :: footer}"></div>
+</body>
+</html>

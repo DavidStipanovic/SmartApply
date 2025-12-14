@@ -1,0 +1,178 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/header :: head}"></head>
+<body>
+<div th:replace="~{fragments/header :: header}"></div>
+
+<main class="main-content">
+    <div class="container">
+
+        <!-- Success/Error Messages -->
+        <div th:if="${successMessage}" class="alert alert-success">
+            <i class="fas fa-check-circle"></i>
+            <span th:text="${successMessage}">Success</span>
+        </div>
+
+        <div th:if="${errorMessage}" class="alert alert-error">
+            <i class="fas fa-exclamation-circle"></i>
+            <span th:text="${errorMessage}">Error</span>
+        </div>
+
+        <!-- Page Header -->
+        <div class="page-header">
+            <div>
+                <h1 class="page-title">Alle Bewerbungen</h1>
+                <p style="color: var(--text-secondary); margin: 0;">
+                    <span th:text="${totalCount}">0</span> Bewerbungen insgesamt
+                </p>
+            </div>
+            <a href="/applications/new" class="btn btn-primary btn-lg">
+                <i class="fas fa-plus"></i> Neue Bewerbung
+            </a>
+        </div>
+
+        <!-- Statistics Overview -->
+        <div class="stats-grid">
+            <div class="stat-card">
+                <div class="stat-header">
+                    <div>
+                        <div class="stat-value" th:text="${activeCount} ?: 0">0</div>
+                        <div class="stat-label">Aktiv</div>
+                    </div>
+                    <div class="stat-icon warning">
+                        <i class="fas fa-hourglass-half"></i>
+                    </div>
+                </div>
+            </div>
+
+            <div class="stat-card">
+                <div class="stat-header">
+                    <div>
+                        <div class="stat-value" th:text="${appliedCount} ?: 0">0</div>
+                        <div class="stat-label">Beworben</div>
+                    </div>
+                    <div class="stat-icon primary">
+                        <i class="fas fa-paper-plane"></i>
+                    </div>
+                </div>
+            </div>
+
+            <div class="stat-card">
+                <div class="stat-header">
+                    <div>
+                        <div class="stat-value" th:text="${interviewCount} ?: 0">0</div>
+                        <div class="stat-label">Interviews</div>
+                    </div>
+                    <div class="stat-icon primary">
+                        <i class="fas fa-users"></i>
+                    </div>
+                </div>
+            </div>
+
+            <div class="stat-card">
+                <div class="stat-header">
+                    <div>
+                        <div class="stat-value" th:text="${offerCount} ?: 0">0</div>
+                        <div class="stat-label">Zusagen</div>
+                    </div>
+                    <div class="stat-icon success">
+                        <i class="fas fa-check-circle"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Filter Bar -->
+        <div class="filter-bar">
+            <form method="get" action="/applications" style="display: flex; gap: var(--spacing-md); flex: 1; flex-wrap: wrap;">
+                <input type="text"
+                       name="search"
+                       class="search-input"
+                       placeholder="Firma suchen..."
+                       th:value="${searchTerm}">
+
+                <select name="status" class="form-select" style="min-width: 200px;">
+                    <option value="">Alle Status</option>
+                    <option th:each="status : ${allStatuses}"
+                            th:value="${status}"
+                            th:text="${status.displayName}"
+                            th:selected="${status.toString() == selectedStatus}">
+                        Status
+                    </option>
+                </select>
+
+                <button type="submit" class="btn btn-primary">
+                    <i class="fas fa-search"></i> Filtern
+                </button>
+
+                <a href="/applications" class="btn btn-secondary">
+                    <i class="fas fa-times"></i> Zurücksetzen
+                </a>
+            </form>
+        </div>
+
+        <!-- Applications Grid -->
+        <div th:if="${applications != null and !applications.isEmpty()}">
+            <div class="applications-grid">
+                <div th:each="app : ${applications}" class="application-card">
+                    <div class="application-header">
+                        <div>
+                            <h3 class="company-name" th:text="${app.companyName}">Firma</h3>
+                            <p class="position-title" th:text="${app.position}">Position</p>
+                        </div>
+                        <span th:class="'status-badge status-' + ${#strings.toLowerCase(app.status)}"
+                              th:text="${app.status.displayName}">Status</span>
+                    </div>
+
+                    <div class="application-meta">
+                        <div class="meta-item">
+                            <i class="fas fa-calendar meta-icon"></i>
+                            <span>Beworben am: <span th:text="${#temporals.format(app.applicationDate, 'dd.MM.yyyy')}">Datum</span></span>
+                        </div>
+                        <div class="meta-item" th:if="${app.deadline != null}">
+                            <i class="fas fa-clock meta-icon"></i>
+                            <span>Deadline: <span th:text="${#temporals.format(app.deadline, 'dd.MM.yyyy')}">Deadline</span></span>
+                        </div>
+                        <div class="meta-item" th:if="${app.contactPerson != null}">
+                            <i class="fas fa-user meta-icon"></i>
+                            <span th:text="${app.contactPerson}">Kontakt</span>
+                        </div>
+                        <div class="meta-item" th:if="${app.salaryExpectation != null}">
+                            <i class="fas fa-euro-sign meta-icon"></i>
+                            <span th:text="${#numbers.formatDecimal(app.salaryExpectation, 0, 'COMMA', 0, 'POINT')} + ' €'">Gehalt</span>
+                        </div>
+                    </div>
+
+                    <div style="display: flex; gap: var(--spacing-sm); margin-top: var(--spacing-lg);">
+                        <a th:href="@{/applications/{id}(id=${app.id})}" class="btn btn-secondary btn-sm" style="flex: 1;">
+                            <i class="fas fa-eye"></i> Details
+                        </a>
+                        <a th:href="@{/applications/{id}/edit(id=${app.id})}" class="btn btn-primary btn-sm" style="flex: 1;">
+                            <i class="fas fa-edit"></i> Bearbeiten
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Empty State -->
+        <div th:if="${applications == null or applications.isEmpty()}" class="empty-state" style="margin-top: var(--spacing-2xl);">
+            <div class="empty-icon">🔍</div>
+            <h3>Keine Bewerbungen gefunden</h3>
+            <p th:if="${searchTerm != null or selectedStatus != null}">
+                Versuche andere Suchkriterien oder erstelle eine neue Bewerbung.
+            </p>
+            <p th:if="${searchTerm == null and selectedStatus == null}">
+                Starte jetzt und erstelle deine erste Bewerbung!
+            </p>
+            <a href="/applications/new" class="btn btn-primary btn-lg">
+                <i class="fas fa-plus"></i> Neue Bewerbung
+            </a>
+        </div>
+
+    </div>
+</main>
+
+<div th:replace="~{fragments/footer :: footer}"></div>
+</body>
+</html>

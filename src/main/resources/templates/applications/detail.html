@@ -1,0 +1,240 @@
+
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/header :: head}"></head>
+<body>
+<div th:replace="~{fragments/header :: header}"></div>
+
+<main class="main-content">
+    <div class="container" style="max-width: 1000px;">
+
+        <!-- Page Header -->
+        <div class="page-header">
+            <div>
+                <h1 class="page-title" th:text="${application.companyName}">Firma</h1>
+                <p style="color: var(--text-secondary); margin: 0;" th:text="${application.position}">Position</p>
+            </div>
+            <div style="display: flex; gap: var(--spacing-md);">
+<!--                     <a th:href="@{/applications/7/edit}" class="btn btn-primary">-->
+<!--                            <i class="fas fa-edit"></i> Bearbeiten-->
+<!--                    </a>-->
+                <!-- DEBUG -->
+                <p>DEBUG: ID = <span th:text="${application.id}">?</span></p>
+
+                <a th:href="${'/applications/' + application.id + '/edit'}" class="btn btn-primary">
+                    <i class="fas fa-edit"></i> Bearbeiten
+                </a>
+                <form th:action="${'/applications/' + application.id + '/delete'}" method="post" style="display: inline;"
+                      onsubmit="return confirm('Möchtest du diese Bewerbung wirklich löschen?');">
+                    <button type="submit" class="btn btn-danger">
+                        <i class="fas fa-trash"></i> Löschen
+                    </button>
+                </form>
+<!--                <form th:action="@{/applications/{id}/delete(id=${application.id})}" method="post" style="display: inline;"-->
+<!--                      onsubmit="return confirm('Möchtest du diese Bewerbung wirklich löschen?');">-->
+<!--                    <button type="submit" class="btn btn-danger">-->
+<!--                        <i class="fas fa-trash"></i> Löschen-->
+<!--                    </button>-->
+<!--                </form>-->
+            </div>
+        </div>
+
+        <!-- Status Badge -->
+        <div style="margin-bottom: var(--spacing-xl);">
+                <span th:class="'status-badge status-' + ${#strings.toLowerCase(application.status)}"
+                      th:text="${application.status?.displayName ?: 'Unbekannt'}"
+                      style="font-size: 1rem; padding: var(--spacing-sm) var(--spacing-lg);">
+                    Status
+                </span>
+        </div>
+
+        <!-- Main Info Grid -->
+        <div style="display: grid; grid-template-columns: 2fr 1fr; gap: var(--spacing-xl);">
+
+            <!-- Left Column - Details -->
+            <div>
+                <!-- Basic Info Card -->
+                <div class="card" style="margin-bottom: var(--spacing-xl);">
+                    <h3 class="card-title">
+                        <i class="fas fa-info-circle"></i> Bewerbungsdetails
+                    </h3>
+                    <div class="card-body">
+                        <div style="display: grid; gap: var(--spacing-lg);">
+                            <div>
+                                <div style="color: var(--text-secondary); font-size: 0.875rem; margin-bottom: var(--spacing-xs);">
+                                    <i class="fas fa-building"></i> Firma
+                                </div>
+                                <div style="font-weight: 600; font-size: 1.1rem;" th:text="${application.companyName}">Firma</div>
+                            </div>
+
+                            <div>
+                                <div style="color: var(--text-secondary); font-size: 0.875rem; margin-bottom: var(--spacing-xs);">
+                                    <i class="fas fa-briefcase"></i> Position
+                                </div>
+                                <div style="font-weight: 600; font-size: 1.1rem;" th:text="${application.position}">Position</div>
+                            </div>
+
+                            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: var(--spacing-lg);">
+                                <div>
+                                    <div style="color: var(--text-secondary); font-size: 0.875rem; margin-bottom: var(--spacing-xs);">
+                                        <i class="fas fa-calendar"></i> Bewerbungsdatum
+                                    </div>
+                                    <div style="font-weight: 600;" th:text="${#temporals.format(application.applicationDate, 'dd.MM.yyyy')}">Datum</div>
+                                </div>
+
+                                <div th:if="${application.deadline != null}">
+                                    <div style="color: var(--text-secondary); font-size: 0.875rem; margin-bottom: var(--spacing-xs);">
+                                        <i class="fas fa-clock"></i> Deadline
+                                    </div>
+                                    <div style="font-weight: 600;" th:text="${#temporals.format(application.deadline, 'dd.MM.yyyy')}">Deadline</div>
+                                </div>
+                            </div>
+
+                            <div>
+                                <div style="color: var(--text-secondary); font-size: 0.875rem; margin-bottom: var(--spacing-xs);">
+                                    <i class="fas fa-euro-sign"></i> Gehaltsvorstellung
+                                </div>
+                                <div style="font-weight: 600; font-size: 1.1rem;">
+                                    <span th:text="${#numbers.formatDecimal(application.salaryExpectation, 0, 'COMMA', 0, 'POINT')}">0</span> €
+                                </div>
+                            </div>
+
+                            <div th:if="${application.jobUrl != null}">
+                                <div style="color: var(--text-secondary); font-size: 0.875rem; margin-bottom: var(--spacing-xs);">
+                                    <i class="fas fa-link"></i> Stellenanzeige
+                                </div>
+                                <a th:href="${application.jobUrl}"
+                                   target="_blank"
+                                   style="color: var(--primary-color); font-weight: 600;">
+                                    Link öffnen <i class="fas fa-external-link-alt"></i>
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Contact Info Card -->
+                <div class="card" th:if="${application.contactPerson != null or application.contactEmail != null or application.contactPhone != null}">
+                    <h3 class="card-title">
+                        <i class="fas fa-address-book"></i> Kontaktinformationen
+                    </h3>
+                    <div class="card-body">
+                        <div style="display: grid; gap: var(--spacing-lg);">
+                            <div th:if="${application.contactPerson != null}">
+                                <div style="color: var(--text-secondary); font-size: 0.875rem; margin-bottom: var(--spacing-xs);">
+                                    <i class="fas fa-user"></i> Ansprechpartner
+                                </div>
+                                <div style="font-weight: 600;" th:text="${application.contactPerson}">Name</div>
+                            </div>
+
+                            <div th:if="${application.contactEmail != null}">
+                                <div style="color: var(--text-secondary); font-size: 0.875rem; margin-bottom: var(--spacing-xs);">
+                                    <i class="fas fa-envelope"></i> E-Mail
+                                </div>
+                                <a th:href="'mailto:' + ${application.contactEmail}"
+                                   style="color: var(--primary-color); font-weight: 600;"
+                                   th:text="${application.contactEmail}">
+                                    email@example.com
+                                </a>
+                            </div>
+
+                            <div th:if="${application.contactPhone != null}">
+                                <div style="color: var(--text-secondary); font-size: 0.875rem; margin-bottom: var(--spacing-xs);">
+                                    <i class="fas fa-phone"></i> Telefon
+                                </div>
+                                <a th:href="'tel:' + ${application.contactPhone}"
+                                   style="color: var(--primary-color); font-weight: 600;"
+                                   th:text="${application.contactPhone}">
+                                    +49 123 456789
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Notes Card -->
+                <div class="card" th:if="${application.notes != null}" style="margin-top: var(--spacing-xl);">
+                    <h3 class="card-title">
+                        <i class="fas fa-sticky-note"></i> Notizen
+                    </h3>
+                    <div class="card-body">
+                        <p style="white-space: pre-wrap; margin: 0;" th:text="${application.notes}">Notizen</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Right Column - Actions & Timeline -->
+            <div>
+                <!-- Quick Actions Card -->
+                <div class="card" style="margin-bottom: var(--spacing-xl);">
+                    <h3 class="card-title" style="font-size: 1rem;">
+                        <i class="fas fa-bolt"></i> Schnellaktionen
+                    </h3>
+                    <div class="card-body">
+                        <form th:action="${'/applications/' + application.id + '/status'}" method="post">
+                            <div class="form-group">
+                                <label class="form-label" style="font-size: 0.875rem;">Status ändern</label>
+                                <select name="status" class="form-select" style="margin-bottom: var(--spacing-md);">
+                                    <option th:each="s : ${T(com.dave.smartapply.model.ApplicationStatus).values()}"
+                                            th:value="${s}"
+                                            th:text="${s.getDisplayName()}"
+                                            th:selected="${s == application.status}">
+                                        Status
+                                    </option>
+                                </select>
+                                <button type="submit" class="btn btn-primary" style="width: 100%;">
+                                    <i class="fas fa-sync"></i> Status aktualisieren
+                                </button>
+                            </div>
+                        </form>
+<!--                        <form th:action="@{/applications/{id}/status(id=${application.id})}" method="post">-->
+<!--                            <div class="form-group">-->
+<!--                                <label class="form-label" style="font-size: 0.875rem;">Status ändern</label>-->
+<!--                                <select name="status" class="form-select" style="margin-bottom: var(&#45;&#45;spacing-md);">-->
+<!--                                    <option th:each="s : ${T(com.dave.smartapply.model.ApplicationStatus).values()}"-->
+<!--                                            th:value="${s}"-->
+<!--                                            th:text="${s.getDisplayName()}"-->
+<!--                                            th:selected="${s == application.status}">-->
+<!--                                        Status-->
+<!--                                    </option>-->
+<!--                                </select>-->
+<!--                                <button type="submit" class="btn btn-primary" style="width: 100%;">-->
+<!--                                    <i class="fas fa-sync"></i> Status aktualisieren-->
+<!--                                </button>-->
+<!--                            </div>-->
+<!--                        </form>-->
+                    </div>
+                </div>
+
+                <!-- Metadata Card -->
+                <div class="card">
+                    <h3 class="card-title" style="font-size: 1rem;">
+                        <i class="fas fa-info-circle"></i> Metadaten
+                    </h3>
+                    <div class="card-body" style="font-size: 0.875rem;">
+                        <div style="margin-bottom: var(--spacing-md);">
+                            <div style="color: var(--text-secondary); margin-bottom: var(--spacing-xs);">Erstellt am</div>
+                            <div th:text="${#temporals.format(application.createdAt, 'dd.MM.yyyy HH:mm')}">Datum</div>
+                        </div>
+                        <div>
+                            <div style="color: var(--text-secondary); margin-bottom: var(--spacing-xs);">Zuletzt geändert</div>
+                            <div th:text="${#temporals.format(application.updatedAt, 'dd.MM.yyyy HH:mm')}">Datum</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Back Button -->
+        <div style="margin-top: var(--spacing-2xl);">
+            <a href="/applications" class="btn btn-secondary">
+                <i class="fas fa-arrow-left"></i> Zurück zur Übersicht
+            </a>
+        </div>
+
+    </div>
+</main>
+
+<div th:replace="~{fragments/footer :: footer}"></div>
+</body>
+</html>

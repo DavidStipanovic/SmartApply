@@ -12,7 +12,7 @@ public class HomeController {
 
     private final ApplicationService applicationService;
 
-    @GetMapping("/")
+    @GetMapping("/old-landingpage")
     public String home(Model model) {
         //Dashboard mit den neuesten/wichtigsten Infos
         model.addAttribute("recentApplications",

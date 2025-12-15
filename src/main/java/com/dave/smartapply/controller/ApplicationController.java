@@ -18,12 +18,11 @@ import java.util.List;
 @RequestMapping("/applications")
 @RequiredArgsConstructor
 @Slf4j
-
 public class ApplicationController {
 
     private final ApplicationService applicationService;
 
-    // Dashboard - Übersicht aller Bewerbungen
+    // Bewerbungsübersicht MIT allen Statistiken
     @GetMapping
     public String listApplications(
             @RequestParam(required = false) String status,
@@ -43,7 +42,7 @@ public class ApplicationController {
             applications = applicationService.getAllApplications();
         }
 
-        // Statistiken für Dashboard
+        // ALLE Statistiken hier (nicht mehr im Dashboard!)
         model.addAttribute("applications", applications);
         model.addAttribute("totalCount", applicationService.getTotalApplications());
         model.addAttribute("activeCount", applicationService.getActiveApplications());
@@ -84,18 +83,14 @@ public class ApplicationController {
             @ModelAttribute("appDetails") Application application,
             BindingResult result,
             RedirectAttributes redirectAttributes,
-            Model model) { //TODO -> Model model hinzugefügt
+            Model model) {
 
-
-        System.out.println("========== POST REQUEST RECEIVED ==========");
         log.info("Creating application for company: {}", application.getCompanyName());
 
         if (result.hasErrors()) {
             log.warn("Validation errors while creating application");
-
-            model.addAttribute("isEdit", false); //TODO ->  Zwei Zeilen hinzugefügt
-            model.addAttribute("allStatuses", Arrays.asList(ApplicationStatus.values())); //TODO ->  Zwei Zeilen hinzugefügt
-
+            model.addAttribute("isEdit", false);
+            model.addAttribute("allStatuses", Arrays.asList(ApplicationStatus.values()));
             return "applications/form";
         }
 
@@ -118,22 +113,14 @@ public class ApplicationController {
     // Einzelne Bewerbung anzeigen (Detail-View)
     @GetMapping("/{id}")
     public String showApplication(@PathVariable Long id, Model model) {
-        System.out.println("======== LOADING APPLICATION ID: " + id + " ========= ");
         log.info("Showing application details for ID: {}", id);
 
         return applicationService.getApplicationById(id)
                 .map(application -> {
-                    System.out.println("Application found: " + application);
-                    System.out.println("Company: " + application.getCompanyName());
-                    System.out.println("Status: " + application.getStatus());
-                    System.out.println("Position: " + application.getPosition());
-                    System.out.println("ID: " + application.getId());
-
                     model.addAttribute("appDetails", application);
                     return "applications/detail";
                 })
                 .orElseGet(() -> {
-                    System.out.println("========== APPLICATION NOT FOUND! ==========");
                     log.warn("Application not found with ID: {}", id);
                     return "redirect:/applications";
                 });
@@ -165,16 +152,14 @@ public class ApplicationController {
             @ModelAttribute("appDetails") Application application,
             BindingResult result,
             RedirectAttributes redirectAttributes,
-            Model model) { //TODO Model hinzugefügt
+            Model model) {
 
         log.info("Updating application ID: {}", id);
 
         if (result.hasErrors()) {
             log.warn("Validation errors while updating application");
-
-            model.addAttribute("isEdit", true); //TODO  hinzugefügt
-            model.addAttribute("allStatuses", Arrays.asList(ApplicationStatus.values())); //TODO  hinzugefügt
-
+            model.addAttribute("isEdit", true);
+            model.addAttribute("allStatuses", Arrays.asList(ApplicationStatus.values()));
             return "applications/form";
         }
 
@@ -213,7 +198,7 @@ public class ApplicationController {
         return "redirect:/applications";
     }
 
-    // Status schnell ändern (AJAX-fähig)
+    // Status schnell ändern
     @PostMapping("/{id}/status")
     public String updateStatus(
             @PathVariable Long id,
@@ -234,6 +219,6 @@ public class ApplicationController {
                     "Fehler beim Status-Update: " + e.getMessage());
         }
 
-        return "redirect:/applications";
+        return "redirect:/applications/" + id;
     }
 }

@@ -1,10 +1,8 @@
 package com.dave.smartapply.model;
 
-
 import jakarta.persistence.*;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
-
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -16,6 +14,15 @@ public class Application {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
+
+    // ✅ NEU: User Relation
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "user_id", nullable = false)
+    private User user;
+
+    // Explizites userId Feld für Queries
+    @Column(name = "user_id", insertable = false, updatable = false)
+    private Long userId;
 
     @Column(nullable = false, length = 200)
     private String companyName;
@@ -172,4 +179,16 @@ public class Application {
         return updatedAt;
     }
 
+    // ✅ NEU: User Getter/Setter
+    public User getUser() {
+        return user;
+    }
+
+    public void setUser(User user) {
+        this.user = user;
+    }
+
+    public Long getUserId() {
+        return userId;
+    }
 }

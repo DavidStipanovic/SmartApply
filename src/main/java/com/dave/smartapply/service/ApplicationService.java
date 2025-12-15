@@ -9,32 +9,41 @@ import java.util.Optional;
 
 public interface ApplicationService {
 
-    // CRUD Operations
-    Application createApplication(Application application);
+    // ========================================
+    // ✅ CRUD Operations (mit userId)
+    // ========================================
 
-    Application updateApplication(Long id, Application application);
+    Application createApplication(Application application, Long userId);
 
-    void deleteApplication(Long id);
+    Application updateApplication(Long id, Application application, Long userId);
 
-    Optional<Application> getApplicationById(Long id);
+    void deleteApplication(Long id, Long userId);
 
-    List<Application> getAllApplications();
+    Optional<Application> getApplicationById(Long id, Long userId);
 
-    // Business Logic
-    List<Application> getApplicationsByStatus(ApplicationStatus status);
+    List<Application> getAllApplications(Long userId);
 
-    List<Application> searchByCompanyName(String companyName);
+    // ========================================
+    // ✅ Business Logic (mit userId)
+    // ========================================
 
-    List<Application> getUpcomingDeadlines(int days);
+    List<Application> getApplicationsByStatus(ApplicationStatus status, Long userId);
 
-    List<Application> getOpenApplications();
+    List<Application> searchByCompanyName(String companyName, Long userId);
 
-    Long getCountByStatus(ApplicationStatus status);
+    List<Application> getUpcomingDeadlines(int days, Long userId);
 
-    Application updateStatus(Long id, ApplicationStatus newStatus);
+    List<Application> getOpenApplications(Long userId);
 
-    // Statistics
-    long getTotalApplications();
+    Long getCountByStatus(ApplicationStatus status, Long userId);
 
-    long getActiveApplications();
+    Application updateStatus(Long id, ApplicationStatus newStatus, Long userId);
+
+    // ========================================
+    // ✅ Statistics (mit userId)
+    // ========================================
+
+    long getTotalApplications(Long userId);
+
+    long getActiveApplications(Long userId);
 }

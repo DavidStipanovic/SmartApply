@@ -1,6 +1,7 @@
 package com.dave.smartapply.service.impl;
 
-
+import com.dave.smartapply.model.User;
+import com.dave.smartapply.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -19,11 +20,19 @@ import java.util.Optional;
 @Slf4j
 @Transactional
 public class ApplicationServiceImpl implements ApplicationService {
+
     private final ApplicationRepository applicationRepository;
+    private final UserRepository userRepository;
 
     @Override
-    public Application createApplication(Application application) {
-        log.info("Creating new application for company: {}", application.getCompanyName());
+    public Application createApplication(Application application, Long userId) {
+        log.info("Creating new application for company: {} (User ID: {})", application.getCompanyName(), userId);
+
+        // User laden und zuweisen
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new RuntimeException("User not found with id: " + userId));
+
+        application.setUser(user);
 
         // Setze Default-Status falls nicht gesetzt
         if (application.getStatus() == null) {
@@ -36,16 +45,23 @@ public class ApplicationServiceImpl implements ApplicationService {
         }
 
         Application saved = applicationRepository.save(application);
-        log.info("Application created with ID: {}", saved.getId());
+        log.info("Application created with ID: {} for User: {}", saved.getId(), userId);
         return saved;
     }
 
     @Override
-    public Application updateApplication(Long id, Application application) {
-        log.info("Updating application with ID: {}", id);
+    public Application updateApplication(Long id, Application application, Long userId) {
+        log.info("Updating application with ID: {} (User ID: {})", id, userId);
 
         return applicationRepository.findById(id)
                 .map(existing -> {
+                    // Security Check: Nur eigene Bewerbungen bearbeiten
+                    if (!existing.getUserId().equals(userId)) {
+                        log.error("User {} tried to update application {} owned by user {}",
+                                userId, id, existing.getUserId());
+                        throw new RuntimeException("Not authorized to update this application");
+                    }
+
                     existing.setCompanyName(application.getCompanyName());
                     existing.setPosition(application.getPosition());
                     existing.setStatus(application.getStatus());
@@ -69,12 +85,17 @@ public class ApplicationServiceImpl implements ApplicationService {
     }
 
     @Override
-    public void deleteApplication(Long id) {
-        log.info("Deleting application with ID: {}", id);
+    public void deleteApplication(Long id, Long userId) {
+        log.info("Deleting application with ID: {} (User ID: {})", id, userId);
 
-        if (!applicationRepository.existsById(id)) {
-            log.error("Application not found with ID: {}", id);
-            throw new RuntimeException("Application not found with id: " + id);
+        Application application = applicationRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Application not found with id: " + id));
+
+        // Security Check: Nur eigene Bewerbungen löschen
+        if (!application.getUserId().equals(userId)) {
+            log.error("User {} tried to delete application {} owned by user {}",
+                    userId, id, application.getUserId());
+            throw new RuntimeException("Not authorized to delete this application");
         }
 
         applicationRepository.deleteById(id);
@@ -83,64 +104,73 @@ public class ApplicationServiceImpl implements ApplicationService {
 
     @Override
     @Transactional(readOnly = true)
-    public Optional<Application> getApplicationById(Long id) {
-        log.debug("Fetching application with ID: {}", id);
-        return applicationRepository.findById(id);
+    public Optional<Application> getApplicationById(Long id, Long userId) {
+        log.debug("Fetching application with ID: {} (User ID: {})", id, userId);
+
+        return applicationRepository.findById(id)
+                .filter(app -> app.getUserId().equals(userId)); // Nur eigene Bewerbungen
     }
 
     @Override
     @Transactional(readOnly = true)
-    public List<Application> getAllApplications() {
-        log.debug("Fetching all applications");
-        return applicationRepository.findAllByOrderByApplicationDateDesc();
+    public List<Application> getAllApplications(Long userId) {
+        log.debug("Fetching all applications for User ID: {}", userId);
+        return applicationRepository.findByUserIdOrderByApplicationDateDesc(userId);
     }
 
     @Override
     @Transactional(readOnly = true)
-    public List<Application> getApplicationsByStatus(ApplicationStatus status) {
-        log.debug("Fetching applications with status: {}", status);
-        return applicationRepository.findByStatus(status);
+    public List<Application> getApplicationsByStatus(ApplicationStatus status, Long userId) {
+        log.debug("Fetching applications with status: {} for User ID: {}", status, userId);
+        return applicationRepository.findByUserIdAndStatus(userId, status);
     }
 
     @Override
     @Transactional(readOnly = true)
-    public List<Application> searchByCompanyName(String companyName) {
-        log.debug("Searching applications by company name: {}", companyName);
-        return applicationRepository.findByCompanyNameContainingIgnoreCase(companyName);
+    public List<Application> searchByCompanyName(String companyName, Long userId) {
+        log.debug("Searching applications by company name: {} for User ID: {}", companyName, userId);
+        return applicationRepository.findByUserIdAndCompanyNameContainingIgnoreCase(userId, companyName);
     }
 
     @Override
     @Transactional(readOnly = true)
-    public List<Application> getUpcomingDeadlines(int days) {
+    public List<Application> getUpcomingDeadlines(int days, Long userId) {
         LocalDate futureDate = LocalDate.now().plusDays(days);
-        log.debug("Fetching applications with deadlines before: {}", futureDate);
-        return applicationRepository.findByDeadlineBefore(futureDate);
+        log.debug("Fetching applications with deadlines before: {} for User ID: {}", futureDate, userId);
+        return applicationRepository.findByUserIdAndDeadlineBefore(userId, futureDate);
     }
 
     @Override
     @Transactional(readOnly = true)
-    public List<Application> getOpenApplications() {
-        log.debug("Fetching all open applications");
+    public List<Application> getOpenApplications(Long userId) {
+        log.debug("Fetching all open applications for User ID: {}", userId);
         List<ApplicationStatus> closedStatuses = List.of(
                 ApplicationStatus.REJECTED,
                 ApplicationStatus.ACCEPTED
         );
-        return applicationRepository.findByStatusNotInOrderByApplicationDateDesc(closedStatuses);
+        return applicationRepository.findByUserIdAndStatusNotInOrderByApplicationDateDesc(userId, closedStatuses);
     }
 
     @Override
     @Transactional(readOnly = true)
-    public Long getCountByStatus(ApplicationStatus status) {
-        log.debug("Counting applications with status: {}", status);
-        return applicationRepository.countByStatus(status);
+    public Long getCountByStatus(ApplicationStatus status, Long userId) {
+        log.debug("Counting applications with status: {} for User ID: {}", status, userId);
+        return applicationRepository.countByUserIdAndStatus(userId, status);
     }
 
     @Override
-    public Application updateStatus(Long id, ApplicationStatus newStatus) {
-        log.info("Updating status for application ID: {} to {}", id, newStatus);
+    public Application updateStatus(Long id, ApplicationStatus newStatus, Long userId) {
+        log.info("Updating status for application ID: {} to {} (User ID: {})", id, newStatus, userId);
 
         return applicationRepository.findById(id)
                 .map(application -> {
+                    // Security Check
+                    if (!application.getUserId().equals(userId)) {
+                        log.error("User {} tried to update status of application {} owned by user {}",
+                                userId, id, application.getUserId());
+                        throw new RuntimeException("Not authorized to update this application");
+                    }
+
                     application.setStatus(newStatus);
                     Application updated = applicationRepository.save(application);
                     log.info("Status updated successfully for application: {}", updated.getId());
@@ -154,21 +184,21 @@ public class ApplicationServiceImpl implements ApplicationService {
 
     @Override
     @Transactional(readOnly = true)
-    public long getTotalApplications() {
-        long count = applicationRepository.count();
-        log.debug("Total applications: {}", count);
+    public long getTotalApplications(Long userId) {
+        long count = applicationRepository.countByUserId(userId);
+        log.debug("Total applications for User ID {}: {}", userId, count);
         return count;
     }
 
     @Override
     @Transactional(readOnly = true)
-    public long getActiveApplications() {
+    public long getActiveApplications(Long userId) {
         List<ApplicationStatus> closedStatuses = List.of(
                 ApplicationStatus.REJECTED,
                 ApplicationStatus.ACCEPTED
         );
-        long count = applicationRepository.findByStatusNotInOrderByApplicationDateDesc(closedStatuses).size();
-        log.debug("Active applications: {}", count);
+        long count = applicationRepository.findByUserIdAndStatusNotInOrderByApplicationDateDesc(userId, closedStatuses).size();
+        log.debug("Active applications for User ID {}: {}", userId, count);
         return count;
     }
 }

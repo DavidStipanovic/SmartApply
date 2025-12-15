@@ -93,22 +93,49 @@
 
 <div th:replace="~{fragments/footer :: footer}"></div>
 <script>
+    // ✅ Dashboard Protection - Check ob User eingeloggt ist
+    function checkAuth() {
+        const token = localStorage.getItem('token');
+
+        if (!token) {
+            // Kein Token → Redirect zu Login
+            console.log('No token found, redirecting to login...');
+            window.location.href = '/login';
+            return false;
+        }
+
+        console.log('Token found, user is authenticated');
+        return true;
+    }
+
     // User Info aus localStorage laden
     function loadUserInfo() {
         const user = JSON.parse(localStorage.getItem('user'));
 
         if (user && user.fullName) {
-            // Nur den Vornamen zeigen
             const firstName = user.fullName.split(' ')[0];
             document.getElementById('userName').textContent = firstName;
+            console.log('User loaded:', firstName);
         } else {
-            // Fallback wenn kein User im localStorage
-            document.getElementById('userName').textContent = 'Dave';
+            // Fallback - versuche aus Token zu laden
+            const token = localStorage.getItem('token');
+            if (token) {
+                // Token ist da, aber kein User - nimm Default
+                document.getElementById('userName').textContent = 'Nutzer';
+            } else {
+                document.getElementById('userName').textContent = 'Dave';
+            }
         }
     }
 
     // Beim Laden der Seite ausführen
-    document.addEventListener('DOMContentLoaded', loadUserInfo);
+    document.addEventListener('DOMContentLoaded', function() {
+        // Zuerst Auth checken
+        if (checkAuth()) {
+            // Dann User Info laden
+            loadUserInfo();
+        }
+    });
 </script>
 
 </body>

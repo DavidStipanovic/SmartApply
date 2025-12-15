@@ -2,9 +2,13 @@ package com.dave.smartapply.controller;
 
 import com.dave.smartapply.model.Application;
 import com.dave.smartapply.model.ApplicationStatus;
+import com.dave.smartapply.model.User;
 import com.dave.smartapply.service.ApplicationService;
+import com.dave.smartapply.service.UserService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
@@ -22,6 +26,21 @@ public class ApplicationController {
 
     private final ApplicationService applicationService;
 
+    // ✅ Helper: Current User ID aus Session holen
+    private Long getCurrentUserId() {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+
+        if (authentication != null && authentication.isAuthenticated() &&
+                authentication.getPrincipal() instanceof User) {
+            User user = (User) authentication.getPrincipal();
+            log.debug("Current user ID from session: {}", user.getId());
+            return user.getId();
+        }
+
+        log.error("No authenticated user found in security context");
+        throw new RuntimeException("User not authenticated");
+    }
+
     // Bewerbungsübersicht MIT allen Statistiken
     @GetMapping
     public String listApplications(
@@ -29,30 +48,31 @@ public class ApplicationController {
             @RequestParam(required = false) String search,
             Model model) {
 
-        log.info("Loading applications list - status: {}, search: {}", status, search);
+        Long userId = getCurrentUserId();
+        log.info("Loading applications list for user {} - status: {}, search: {}", userId, status, search);
 
         List<Application> applications;
 
         // Filter nach Status oder Suche
         if (status != null && !status.isEmpty()) {
-            applications = applicationService.getApplicationsByStatus(ApplicationStatus.valueOf(status));
+            applications = applicationService.getApplicationsByStatus(ApplicationStatus.valueOf(status), userId);
         } else if (search != null && !search.isEmpty()) {
-            applications = applicationService.searchByCompanyName(search);
+            applications = applicationService.searchByCompanyName(search, userId);
         } else {
-            applications = applicationService.getAllApplications();
+            applications = applicationService.getAllApplications(userId);
         }
 
-        // ALLE Statistiken hier (nicht mehr im Dashboard!)
+        // ALLE Statistiken hier (nur für diesen User!)
         model.addAttribute("applications", applications);
-        model.addAttribute("totalCount", applicationService.getTotalApplications());
-        model.addAttribute("activeCount", applicationService.getActiveApplications());
-        model.addAttribute("draftCount", applicationService.getCountByStatus(ApplicationStatus.DRAFT));
-        model.addAttribute("appliedCount", applicationService.getCountByStatus(ApplicationStatus.APPLIED));
+        model.addAttribute("totalCount", applicationService.getTotalApplications(userId));
+        model.addAttribute("activeCount", applicationService.getActiveApplications(userId));
+        model.addAttribute("draftCount", applicationService.getCountByStatus(ApplicationStatus.DRAFT, userId));
+        model.addAttribute("appliedCount", applicationService.getCountByStatus(ApplicationStatus.APPLIED, userId));
         model.addAttribute("interviewCount",
-                applicationService.getCountByStatus(ApplicationStatus.INTERVIEW_SCHEDULED) +
-                        applicationService.getCountByStatus(ApplicationStatus.INTERVIEW_DONE));
-        model.addAttribute("offerCount", applicationService.getCountByStatus(ApplicationStatus.OFFER_RECEIVED));
-        model.addAttribute("rejectedCount", applicationService.getCountByStatus(ApplicationStatus.REJECTED));
+                applicationService.getCountByStatus(ApplicationStatus.INTERVIEW_SCHEDULED, userId) +
+                        applicationService.getCountByStatus(ApplicationStatus.INTERVIEW_DONE, userId));
+        model.addAttribute("offerCount", applicationService.getCountByStatus(ApplicationStatus.OFFER_RECEIVED, userId));
+        model.addAttribute("rejectedCount", applicationService.getCountByStatus(ApplicationStatus.REJECTED, userId));
 
         // Alle Status für Filter-Dropdown
         model.addAttribute("allStatuses", Arrays.asList(ApplicationStatus.values()));
@@ -65,7 +85,8 @@ public class ApplicationController {
     // Formular für neue Bewerbung anzeigen
     @GetMapping("/new")
     public String showCreateForm(Model model) {
-        log.info("Showing create application form");
+        Long userId = getCurrentUserId();
+        log.info("Showing create application form for user: {}", userId);
 
         Application application = new Application();
         application.setStatus(ApplicationStatus.DRAFT);
@@ -85,7 +106,8 @@ public class ApplicationController {
             RedirectAttributes redirectAttributes,
             Model model) {
 
-        log.info("Creating application for company: {}", application.getCompanyName());
+        Long userId = getCurrentUserId();
+        log.info("Creating application for company: {} (User: {})", application.getCompanyName(), userId);
 
         if (result.hasErrors()) {
             log.warn("Validation errors while creating application");
@@ -95,15 +117,15 @@ public class ApplicationController {
         }
 
         try {
-            Application saved = applicationService.createApplication(application);
-            log.info("Application created successfully with ID: {}", saved.getId());
+            Application saved = applicationService.createApplication(application, userId);
+            log.info("Application created successfully with ID: {} for user: {}", saved.getId(), userId);
 
             redirectAttributes.addFlashAttribute("successMessage",
                     "Bewerbung bei " + saved.getCompanyName() + " erfolgreich erstellt!");
 
             return "redirect:/applications";
         } catch (Exception e) {
-            log.error("Error creating application", e);
+            log.error("Error creating application for user: {}", userId, e);
             redirectAttributes.addFlashAttribute("errorMessage",
                     "Fehler beim Erstellen der Bewerbung: " + e.getMessage());
             return "redirect:/applications/new";
@@ -112,16 +134,19 @@ public class ApplicationController {
 
     // Einzelne Bewerbung anzeigen (Detail-View)
     @GetMapping("/{id}")
-    public String showApplication(@PathVariable Long id, Model model) {
-        log.info("Showing application details for ID: {}", id);
+    public String showApplication(@PathVariable Long id, Model model, RedirectAttributes redirectAttributes) {
+        Long userId = getCurrentUserId();
+        log.info("Showing application details for ID: {} (User: {})", id, userId);
 
-        return applicationService.getApplicationById(id)
+        return applicationService.getApplicationById(id, userId)
                 .map(application -> {
                     model.addAttribute("appDetails", application);
                     return "applications/detail";
                 })
                 .orElseGet(() -> {
-                    log.warn("Application not found with ID: {}", id);
+                    log.warn("Application not found or not authorized - ID: {}, User: {}", id, userId);
+                    redirectAttributes.addFlashAttribute("errorMessage",
+                            "Bewerbung nicht gefunden oder keine Berechtigung!");
                     return "redirect:/applications";
                 });
     }
@@ -129,9 +154,10 @@ public class ApplicationController {
     // Formular zum Bearbeiten anzeigen
     @GetMapping("/{id}/edit")
     public String showEditForm(@PathVariable Long id, Model model, RedirectAttributes redirectAttributes) {
-        log.info("Showing edit form for application ID: {}", id);
+        Long userId = getCurrentUserId();
+        log.info("Showing edit form for application ID: {} (User: {})", id, userId);
 
-        return applicationService.getApplicationById(id)
+        return applicationService.getApplicationById(id, userId)
                 .map(application -> {
                     model.addAttribute("appDetails", application);
                     model.addAttribute("allStatuses", Arrays.asList(ApplicationStatus.values()));
@@ -139,8 +165,9 @@ public class ApplicationController {
                     return "applications/form";
                 })
                 .orElseGet(() -> {
-                    log.warn("Application not found with ID: {}", id);
-                    redirectAttributes.addFlashAttribute("errorMessage", "Bewerbung nicht gefunden!");
+                    log.warn("Application not found or not authorized - ID: {}, User: {}", id, userId);
+                    redirectAttributes.addFlashAttribute("errorMessage",
+                            "Bewerbung nicht gefunden oder keine Berechtigung!");
                     return "redirect:/applications";
                 });
     }
@@ -154,7 +181,8 @@ public class ApplicationController {
             RedirectAttributes redirectAttributes,
             Model model) {
 
-        log.info("Updating application ID: {}", id);
+        Long userId = getCurrentUserId();
+        log.info("Updating application ID: {} (User: {})", id, userId);
 
         if (result.hasErrors()) {
             log.warn("Validation errors while updating application");
@@ -164,15 +192,15 @@ public class ApplicationController {
         }
 
         try {
-            Application updated = applicationService.updateApplication(id, application);
-            log.info("Application updated successfully: {}", updated.getId());
+            Application updated = applicationService.updateApplication(id, application, userId);
+            log.info("Application updated successfully: {} (User: {})", updated.getId(), userId);
 
             redirectAttributes.addFlashAttribute("successMessage",
                     "Bewerbung bei " + updated.getCompanyName() + " erfolgreich aktualisiert!");
 
             return "redirect:/applications/" + id;
         } catch (Exception e) {
-            log.error("Error updating application", e);
+            log.error("Error updating application for user: {}", userId, e);
             redirectAttributes.addFlashAttribute("errorMessage",
                     "Fehler beim Aktualisieren: " + e.getMessage());
             return "redirect:/applications/" + id + "/edit";
@@ -182,15 +210,16 @@ public class ApplicationController {
     // Bewerbung löschen
     @PostMapping("/{id}/delete")
     public String deleteApplication(@PathVariable Long id, RedirectAttributes redirectAttributes) {
-        log.info("Deleting application ID: {}", id);
+        Long userId = getCurrentUserId();
+        log.info("Deleting application ID: {} (User: {})", id, userId);
 
         try {
-            applicationService.deleteApplication(id);
-            log.info("Application deleted successfully: {}", id);
+            applicationService.deleteApplication(id, userId);
+            log.info("Application deleted successfully: {} (User: {})", id, userId);
 
             redirectAttributes.addFlashAttribute("successMessage", "Bewerbung erfolgreich gelöscht!");
         } catch (Exception e) {
-            log.error("Error deleting application", e);
+            log.error("Error deleting application for user: {}", userId, e);
             redirectAttributes.addFlashAttribute("errorMessage",
                     "Fehler beim Löschen: " + e.getMessage());
         }
@@ -205,16 +234,17 @@ public class ApplicationController {
             @RequestParam ApplicationStatus status,
             RedirectAttributes redirectAttributes) {
 
-        log.info("Updating status for application ID: {} to {}", id, status);
+        Long userId = getCurrentUserId();
+        log.info("Updating status for application ID: {} to {} (User: {})", id, status, userId);
 
         try {
-            Application updated = applicationService.updateStatus(id, status);
-            log.info("Status updated successfully");
+            Application updated = applicationService.updateStatus(id, status, userId);
+            log.info("Status updated successfully (User: {})", userId);
 
             redirectAttributes.addFlashAttribute("successMessage",
                     "Status auf '" + status.getDisplayName() + "' geändert!");
         } catch (Exception e) {
-            log.error("Error updating status", e);
+            log.error("Error updating status for user: {}", userId, e);
             redirectAttributes.addFlashAttribute("errorMessage",
                     "Fehler beim Status-Update: " + e.getMessage());
         }

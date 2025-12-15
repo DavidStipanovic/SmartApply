@@ -9,6 +9,10 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.*;
+import jakarta.servlet.http.HttpServletRequest;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.context.SecurityContextHolder;
+import java.util.ArrayList;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -24,7 +28,7 @@ public class AuthController {
     private final PasswordEncoder passwordEncoder;
 
     @PostMapping("/register")
-    public ResponseEntity<?> register(@RequestBody Map<String, String> request) {
+    public ResponseEntity<?> register(@RequestBody Map<String, String> request, HttpServletRequest httpRequest) {
         try {
             String email = request.get("email");
             String password = request.get("password");
@@ -46,6 +50,14 @@ public class AuthController {
             user.setIsApproved(true); // Auto-approve for now
 
             User savedUser = userService.save(user);
+
+            // ✅ Set Authentication in Session
+            UsernamePasswordAuthenticationToken authentication =
+                    new UsernamePasswordAuthenticationToken(savedUser, null, new ArrayList<>());
+            SecurityContextHolder.getContext().setAuthentication(authentication);
+
+            // Save session
+            httpRequest.getSession().setAttribute("SPRING_SECURITY_CONTEXT", SecurityContextHolder.getContext());
 
             // Generate JWT Token
             String token = jwtUtil.generateToken(savedUser.getEmail(), savedUser.getId());
@@ -69,7 +81,7 @@ public class AuthController {
     }
 
     @PostMapping("/login")
-    public ResponseEntity<?> login(@RequestBody Map<String, String> request) {
+    public ResponseEntity<?> login(@RequestBody Map<String, String> request, HttpServletRequest httpRequest) {
         try {
             String email = request.get("email");
             String password = request.get("password");
@@ -94,7 +106,15 @@ public class AuthController {
                         .body(Map.of("error", "Account not approved yet"));
             }
 
-            // Generate JWT Token
+            // ✅ Set Authentication in Session
+            UsernamePasswordAuthenticationToken authentication =
+                    new UsernamePasswordAuthenticationToken(user, null, new ArrayList<>());
+            SecurityContextHolder.getContext().setAuthentication(authentication);
+
+            // Save session
+            httpRequest.getSession().setAttribute("SPRING_SECURITY_CONTEXT", SecurityContextHolder.getContext());
+
+            // Generate JWT Token (für API / Mobile)
             String token = jwtUtil.generateToken(user.getEmail(), user.getId());
 
             Map<String, Object> response = new HashMap<>();

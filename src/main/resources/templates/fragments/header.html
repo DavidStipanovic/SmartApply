@@ -1,47 +1,4 @@
-<!--<!DOCTYPE html>-->
-<!--<html xmlns:th="http://www.thymeleaf.org">-->
-<!--<head th:fragment="head">-->
-<!--    <meta charset="UTF-8">-->
-<!--    <meta name="viewport" content="width=device-width, initial-scale=1.0">-->
-<!--    <title th:text="${pageTitle} ? ${pageTitle} + ' - SmartApply' : 'SmartApply - Bewerbungsmanagement'">SmartApply</title>-->
 
-<!--    &lt;!&ndash; Google Fonts &ndash;&gt;-->
-<!--    <link rel="preconnect" href="https://fonts.googleapis.com">-->
-<!--    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>-->
-<!--    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">-->
-
-<!--    &lt;!&ndash; Font Awesome Icons &ndash;&gt;-->
-<!--    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">-->
-
-<!--    &lt;!&ndash; Custom CSS &ndash;&gt;-->
-<!--    <link rel="stylesheet" th:href="@{/css/style.css}">-->
-<!--</head>-->
-
-<!--<body>-->
-<!--<header th:fragment="header" class="header">-->
-<!--    <div class="container">-->
-<!--        <div class="header-content">-->
-<!--            <a href="/" class="logo">-->
-<!--                <span class="logo-icon">📋</span>-->
-<!--                <span>SmartApply</span>-->
-<!--            </a>-->
-
-<!--            <nav class="nav">-->
-<!--                <a href="/" class="nav-link">-->
-<!--                    <i class="fas fa-home"></i> Dashboard-->
-<!--                </a>-->
-<!--                <a href="/applications" class="nav-link">-->
-<!--                    <i class="fas fa-briefcase"></i> Bewerbungen-->
-<!--                </a>-->
-<!--                <a href="/applications/new" class="btn btn-primary">-->
-<!--                    <i class="fas fa-plus"></i> Neue Bewerbung-->
-<!--                </a>-->
-<!--            </nav>-->
-<!--        </div>-->
-<!--    </div>-->
-<!--</header>-->
-<!--</body>-->
-<!--</html>-->
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org">
 <head th:fragment="head">
@@ -575,6 +532,32 @@
             }
         }
     </style>
+
+    <script>
+        // User Info im Header laden
+        function loadHeaderUserInfo() {
+            const user = JSON.parse(localStorage.getItem('user'));
+            const headerUserName = document.getElementById('headerUserName');
+
+            if (headerUserName && user && user.fullName) {
+                const firstName = user.fullName.split(' ')[0];
+                headerUserName.innerHTML = '<i class="fas fa-user-circle"></i> ' + firstName;
+            }
+        }
+
+        // Logout Funktion
+        function logout() {
+            // Token & User aus localStorage entfernen
+            localStorage.removeItem('token');
+            localStorage.removeItem('user');
+
+            // Redirect zu Login
+            window.location.href = '/login';
+        }
+
+        // Beim Laden ausführen
+        document.addEventListener('DOMContentLoaded', loadHeaderUserInfo);
+    </script>
 </head>
 
 <body>
@@ -590,6 +573,16 @@
             <a href="/applications" class="nav-link">
                 <i class="fas fa-list"></i> Bewerbungen
             </a>
+
+            <!-- User Info & Logout -->
+            <div style="display: flex; align-items: center; gap: var(--spacing-md); margin-left: var(--spacing-lg); padding-left: var(--spacing-lg); border-left: 1px solid var(--border-color);">
+        <span id="headerUserName" style="color: var(--text-secondary); font-weight: 500; font-size: 0.9rem;">
+            <i class="fas fa-user-circle"></i> Laden...
+        </span>
+                <button onclick="logout()" class="btn btn-danger" style="padding: var(--spacing-sm) var(--spacing-md); font-size: 0.875rem;">
+                    <i class="fas fa-sign-out-alt"></i> Logout
+                </button>
+            </div>
         </nav>
     </div>
 </header>

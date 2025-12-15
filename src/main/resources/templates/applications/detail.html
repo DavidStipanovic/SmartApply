@@ -11,38 +11,27 @@
         <!-- Page Header -->
         <div class="page-header">
             <div>
-                <h1 class="page-title" th:text="${application.companyName}">Firma</h1>
-                <p style="color: var(--text-secondary); margin: 0;" th:text="${application.position}">Position</p>
+                <h1 class="page-title" th:text="${appDetails.companyName}">Firma</h1>
+                <p style="color: var(--text-secondary); margin: 0;" th:text="${appDetails.position}">Position</p>
             </div>
             <div style="display: flex; gap: var(--spacing-md);">
-<!--                     <a th:href="@{/applications/7/edit}" class="btn btn-primary">-->
-<!--                            <i class="fas fa-edit"></i> Bearbeiten-->
-<!--                    </a>-->
-                <!-- DEBUG -->
-                <p>DEBUG: ID = <span th:text="${application.id}">?</span></p>
 
-                <a th:href="${'/applications/' + application.id + '/edit'}" class="btn btn-primary">
+                <a th:href="@{/applications/{id}/edit(id=${appDetails.id})}" class="btn btn-primary">
                     <i class="fas fa-edit"></i> Bearbeiten
                 </a>
-                <form th:action="${'/applications/' + application.id + '/delete'}" method="post" style="display: inline;"
+                <form th:action="@{/applications/{id}/delete(id=${appDetails.id})}" method="post" style="display: inline;"
                       onsubmit="return confirm('Möchtest du diese Bewerbung wirklich löschen?');">
                     <button type="submit" class="btn btn-danger">
                         <i class="fas fa-trash"></i> Löschen
                     </button>
                 </form>
-<!--                <form th:action="@{/applications/{id}/delete(id=${application.id})}" method="post" style="display: inline;"-->
-<!--                      onsubmit="return confirm('Möchtest du diese Bewerbung wirklich löschen?');">-->
-<!--                    <button type="submit" class="btn btn-danger">-->
-<!--                        <i class="fas fa-trash"></i> Löschen-->
-<!--                    </button>-->
-<!--                </form>-->
             </div>
         </div>
 
         <!-- Status Badge -->
         <div style="margin-bottom: var(--spacing-xl);">
-                <span th:class="'status-badge status-' + ${#strings.toLowerCase(application.status)}"
-                      th:text="${application.status?.displayName ?: 'Unbekannt'}"
+                <span th:class="'status-badge status-' + ${#strings.toLowerCase(appDetails.status)}"
+                      th:text="${appDetails.status?.displayName ?: 'Unbekannt'}"
                       style="font-size: 1rem; padding: var(--spacing-sm) var(--spacing-lg);">
                     Status
                 </span>
@@ -64,14 +53,14 @@
                                 <div style="color: var(--text-secondary); font-size: 0.875rem; margin-bottom: var(--spacing-xs);">
                                     <i class="fas fa-building"></i> Firma
                                 </div>
-                                <div style="font-weight: 600; font-size: 1.1rem;" th:text="${application.companyName}">Firma</div>
+                                <div style="font-weight: 600; font-size: 1.1rem;" th:text="${appDetails.companyName}">Firma</div>
                             </div>
 
                             <div>
                                 <div style="color: var(--text-secondary); font-size: 0.875rem; margin-bottom: var(--spacing-xs);">
                                     <i class="fas fa-briefcase"></i> Position
                                 </div>
-                                <div style="font-weight: 600; font-size: 1.1rem;" th:text="${application.position}">Position</div>
+                                <div style="font-weight: 600; font-size: 1.1rem;" th:text="${appDetails.position}">Position</div>
                             </div>
 
                             <div style="display: grid; grid-template-columns: 1fr 1fr; gap: var(--spacing-lg);">
@@ -79,14 +68,14 @@
                                     <div style="color: var(--text-secondary); font-size: 0.875rem; margin-bottom: var(--spacing-xs);">
                                         <i class="fas fa-calendar"></i> Bewerbungsdatum
                                     </div>
-                                    <div style="font-weight: 600;" th:text="${#temporals.format(application.applicationDate, 'dd.MM.yyyy')}">Datum</div>
+                                    <div style="font-weight: 600;" th:text="${#temporals.format(appDetails.applicationDate, 'dd.MM.yyyy')}">Datum</div>
                                 </div>
 
-                                <div th:if="${application.deadline != null}">
+                                <div th:if="${appDetails.deadline != null}">
                                     <div style="color: var(--text-secondary); font-size: 0.875rem; margin-bottom: var(--spacing-xs);">
                                         <i class="fas fa-clock"></i> Deadline
                                     </div>
-                                    <div style="font-weight: 600;" th:text="${#temporals.format(application.deadline, 'dd.MM.yyyy')}">Deadline</div>
+                                    <div style="font-weight: 600;" th:text="${#temporals.format(appDetails.deadline, 'dd.MM.yyyy')}">Deadline</div>
                                 </div>
                             </div>
 
@@ -95,15 +84,15 @@
                                     <i class="fas fa-euro-sign"></i> Gehaltsvorstellung
                                 </div>
                                 <div style="font-weight: 600; font-size: 1.1rem;">
-                                    <span th:text="${#numbers.formatDecimal(application.salaryExpectation, 0, 'COMMA', 0, 'POINT')}">0</span> €
+                                    <span th:text="${#numbers.formatDecimal(appDetails.salaryExpectation, 0, 'COMMA', 0, 'POINT')}">0</span> €
                                 </div>
                             </div>
 
-                            <div th:if="${application.jobUrl != null}">
+                            <div th:if="${appDetails.jobUrl != null}">
                                 <div style="color: var(--text-secondary); font-size: 0.875rem; margin-bottom: var(--spacing-xs);">
                                     <i class="fas fa-link"></i> Stellenanzeige
                                 </div>
-                                <a th:href="${application.jobUrl}"
+                                <a th:href="${appDetails.jobUrl}"
                                    target="_blank"
                                    style="color: var(--primary-color); font-weight: 600;">
                                     Link öffnen <i class="fas fa-external-link-alt"></i>
@@ -114,37 +103,37 @@
                 </div>
 
                 <!-- Contact Info Card -->
-                <div class="card" th:if="${application.contactPerson != null or application.contactEmail != null or application.contactPhone != null}">
+                <div class="card" th:if="${appDetails.contactPerson != null or appDetails.contactEmail != null or appDetails.contactPhone != null}">
                     <h3 class="card-title">
                         <i class="fas fa-address-book"></i> Kontaktinformationen
                     </h3>
                     <div class="card-body">
                         <div style="display: grid; gap: var(--spacing-lg);">
-                            <div th:if="${application.contactPerson != null}">
+                            <div th:if="${appDetails.contactPerson != null}">
                                 <div style="color: var(--text-secondary); font-size: 0.875rem; margin-bottom: var(--spacing-xs);">
                                     <i class="fas fa-user"></i> Ansprechpartner
                                 </div>
-                                <div style="font-weight: 600;" th:text="${application.contactPerson}">Name</div>
+                                <div style="font-weight: 600;" th:text="${appDetails.contactPerson}">Name</div>
                             </div>
 
-                            <div th:if="${application.contactEmail != null}">
+                            <div th:if="${appDetails.contactEmail != null}">
                                 <div style="color: var(--text-secondary); font-size: 0.875rem; margin-bottom: var(--spacing-xs);">
                                     <i class="fas fa-envelope"></i> E-Mail
                                 </div>
-                                <a th:href="'mailto:' + ${application.contactEmail}"
+                                <a th:href="'mailto:' + ${appDetails.contactEmail}"
                                    style="color: var(--primary-color); font-weight: 600;"
-                                   th:text="${application.contactEmail}">
+                                   th:text="${appDetails.contactEmail}">
                                     email@example.com
                                 </a>
                             </div>
 
-                            <div th:if="${application.contactPhone != null}">
+                            <div th:if="${appDetails.contactPhone != null}">
                                 <div style="color: var(--text-secondary); font-size: 0.875rem; margin-bottom: var(--spacing-xs);">
                                     <i class="fas fa-phone"></i> Telefon
                                 </div>
-                                <a th:href="'tel:' + ${application.contactPhone}"
+                                <a th:href="'tel:' + ${appDetails.contactPhone}"
                                    style="color: var(--primary-color); font-weight: 600;"
-                                   th:text="${application.contactPhone}">
+                                   th:text="${appDetails.contactPhone}">
                                     +49 123 456789
                                 </a>
                             </div>
@@ -153,12 +142,12 @@
                 </div>
 
                 <!-- Notes Card -->
-                <div class="card" th:if="${application.notes != null}" style="margin-top: var(--spacing-xl);">
+                <div class="card" th:if="${appDetails.notes != null}" style="margin-top: var(--spacing-xl);">
                     <h3 class="card-title">
                         <i class="fas fa-sticky-note"></i> Notizen
                     </h3>
                     <div class="card-body">
-                        <p style="white-space: pre-wrap; margin: 0;" th:text="${application.notes}">Notizen</p>
+                        <p style="white-space: pre-wrap; margin: 0;" th:text="${appDetails.notes}">Notizen</p>
                     </div>
                 </div>
             </div>
@@ -171,14 +160,14 @@
                         <i class="fas fa-bolt"></i> Schnellaktionen
                     </h3>
                     <div class="card-body">
-                        <form th:action="${'/applications/' + application.id + '/status'}" method="post">
+                        <form th:action="@{/applications/{id}/status(id=${appDetails.id})}" method="post">
                             <div class="form-group">
                                 <label class="form-label" style="font-size: 0.875rem;">Status ändern</label>
                                 <select name="status" class="form-select" style="margin-bottom: var(--spacing-md);">
                                     <option th:each="s : ${T(com.dave.smartapply.model.ApplicationStatus).values()}"
                                             th:value="${s}"
                                             th:text="${s.getDisplayName()}"
-                                            th:selected="${s == application.status}">
+                                            th:selected="${s == appDetails.status}">
                                         Status
                                     </option>
                                 </select>
@@ -187,22 +176,6 @@
                                 </button>
                             </div>
                         </form>
-<!--                        <form th:action="@{/applications/{id}/status(id=${application.id})}" method="post">-->
-<!--                            <div class="form-group">-->
-<!--                                <label class="form-label" style="font-size: 0.875rem;">Status ändern</label>-->
-<!--                                <select name="status" class="form-select" style="margin-bottom: var(&#45;&#45;spacing-md);">-->
-<!--                                    <option th:each="s : ${T(com.dave.smartapply.model.ApplicationStatus).values()}"-->
-<!--                                            th:value="${s}"-->
-<!--                                            th:text="${s.getDisplayName()}"-->
-<!--                                            th:selected="${s == application.status}">-->
-<!--                                        Status-->
-<!--                                    </option>-->
-<!--                                </select>-->
-<!--                                <button type="submit" class="btn btn-primary" style="width: 100%;">-->
-<!--                                    <i class="fas fa-sync"></i> Status aktualisieren-->
-<!--                                </button>-->
-<!--                            </div>-->
-<!--                        </form>-->
                     </div>
                 </div>
 
@@ -214,11 +187,11 @@
                     <div class="card-body" style="font-size: 0.875rem;">
                         <div style="margin-bottom: var(--spacing-md);">
                             <div style="color: var(--text-secondary); margin-bottom: var(--spacing-xs);">Erstellt am</div>
-                            <div th:text="${#temporals.format(application.createdAt, 'dd.MM.yyyy HH:mm')}">Datum</div>
+                            <div th:text="${#temporals.format(appDetails.createdAt, 'dd.MM.yyyy HH:mm')}">Datum</div>
                         </div>
                         <div>
                             <div style="color: var(--text-secondary); margin-bottom: var(--spacing-xs);">Zuletzt geändert</div>
-                            <div th:text="${#temporals.format(application.updatedAt, 'dd.MM.yyyy HH:mm')}">Datum</div>
+                            <div th:text="${#temporals.format(appDetails.updatedAt, 'dd.MM.yyyy HH:mm')}">Datum</div>
                         </div>
                     </div>
                 </div>

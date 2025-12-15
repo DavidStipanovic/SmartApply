@@ -71,7 +71,7 @@ public class ApplicationController {
         Application application = new Application();
         application.setStatus(ApplicationStatus.DRAFT);
 
-        model.addAttribute("application", application);
+        model.addAttribute("appDetails", application);
         model.addAttribute("allStatuses", Arrays.asList(ApplicationStatus.values()));
         model.addAttribute("isEdit", false);
 
@@ -81,15 +81,21 @@ public class ApplicationController {
     // Neue Bewerbung speichern
     @PostMapping
     public String createApplication(
-            @ModelAttribute Application application,
+            @ModelAttribute("appDetails") Application application,
             BindingResult result,
-            RedirectAttributes redirectAttributes) {
+            RedirectAttributes redirectAttributes,
+            Model model) { //TODO -> Model model hinzugefügt
+
 
         System.out.println("========== POST REQUEST RECEIVED ==========");
         log.info("Creating application for company: {}", application.getCompanyName());
 
         if (result.hasErrors()) {
             log.warn("Validation errors while creating application");
+
+            model.addAttribute("isEdit", false); //TODO ->  Zwei Zeilen hinzugefügt
+            model.addAttribute("allStatuses", Arrays.asList(ApplicationStatus.values())); //TODO ->  Zwei Zeilen hinzugefügt
+
             return "applications/form";
         }
 
@@ -123,7 +129,7 @@ public class ApplicationController {
                     System.out.println("Position: " + application.getPosition());
                     System.out.println("ID: " + application.getId());
 
-                    model.addAttribute("application", application);
+                    model.addAttribute("appDetails", application);
                     return "applications/detail";
                 })
                 .orElseGet(() -> {
@@ -140,7 +146,7 @@ public class ApplicationController {
 
         return applicationService.getApplicationById(id)
                 .map(application -> {
-                    model.addAttribute("application", application);
+                    model.addAttribute("appDetails", application);
                     model.addAttribute("allStatuses", Arrays.asList(ApplicationStatus.values()));
                     model.addAttribute("isEdit", true);
                     return "applications/form";
@@ -156,14 +162,19 @@ public class ApplicationController {
     @PostMapping("/{id}")
     public String updateApplication(
             @PathVariable Long id,
-            @ModelAttribute Application application,
+            @ModelAttribute("appDetails") Application application,
             BindingResult result,
-            RedirectAttributes redirectAttributes) {
+            RedirectAttributes redirectAttributes,
+            Model model) { //TODO Model hinzugefügt
 
         log.info("Updating application ID: {}", id);
 
         if (result.hasErrors()) {
             log.warn("Validation errors while updating application");
+
+            model.addAttribute("isEdit", true); //TODO  hinzugefügt
+            model.addAttribute("allStatuses", Arrays.asList(ApplicationStatus.values())); //TODO  hinzugefügt
+
             return "applications/form";
         }
 

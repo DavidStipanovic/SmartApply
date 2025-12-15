@@ -20,10 +20,9 @@
 
         <!-- Form Card -->
         <div class="card">
-            <form action="/applications"
+            <form th:action="${isEdit} ? '/applications/' + ${appDetails.id} : '/applications'"
                   method="post"
-                  th:object="${application}">
-
+                  th:object="${appDetails}">
                 <input type="hidden" th:if="${isEdit}" th:field="*{id}" />
 
                 <!-- Firma & Position -->

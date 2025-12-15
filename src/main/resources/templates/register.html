@@ -1,0 +1,384 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SmartApply - Register</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+
+        .register-container {
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            overflow: hidden;
+            width: 100%;
+            max-width: 450px;
+            animation: slideUp 0.5s ease-out;
+        }
+
+        @keyframes slideUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .register-header {
+            background: linear-gradient(135deg, #8B5CF6 0%, #7C3AED 100%);
+            padding: 40px;
+            text-align: center;
+            color: white;
+        }
+
+        .register-header h1 {
+            font-size: 32px;
+            margin-bottom: 10px;
+            font-weight: 600;
+        }
+
+        .register-header p {
+            font-size: 16px;
+            opacity: 0.9;
+        }
+
+        .register-body {
+            padding: 40px;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 500;
+            color: #374151;
+            font-size: 14px;
+        }
+
+        .form-group input {
+            width: 100%;
+            padding: 14px 16px;
+            border: 2px solid #E5E7EB;
+            border-radius: 10px;
+            font-size: 15px;
+            transition: all 0.3s ease;
+            background: #F9FAFB;
+        }
+
+        .form-group input:focus {
+            outline: none;
+            border-color: #8B5CF6;
+            background: white;
+            box-shadow: 0 0 0 3px rgba(139, 92, 246, 0.1);
+        }
+
+        .form-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+        }
+
+        .password-wrapper {
+            position: relative;
+        }
+
+        .password-toggle {
+            position: absolute;
+            right: 16px;
+            top: 50%;
+            transform: translateY(-50%);
+            cursor: pointer;
+            color: #9CA3AF;
+            user-select: none;
+        }
+
+        .password-toggle:hover {
+            color: #8B5CF6;
+        }
+
+        .btn-register {
+            width: 100%;
+            padding: 14px;
+            background: linear-gradient(135deg, #8B5CF6 0%, #7C3AED 100%);
+            color: white;
+            border: none;
+            border-radius: 10px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin-top: 10px;
+        }
+
+        .btn-register:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(139, 92, 246, 0.3);
+        }
+
+        .btn-register:active {
+            transform: translateY(0);
+        }
+
+        .divider {
+            text-align: center;
+            margin: 30px 0;
+            position: relative;
+        }
+
+        .divider::before {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 0;
+            right: 0;
+            height: 1px;
+            background: #E5E7EB;
+        }
+
+        .divider span {
+            background: white;
+            padding: 0 20px;
+            position: relative;
+            color: #9CA3AF;
+            font-size: 14px;
+        }
+
+        .login-link {
+            text-align: center;
+            margin-top: 20px;
+            color: #6B7280;
+            font-size: 14px;
+        }
+
+        .login-link a {
+            color: #8B5CF6;
+            text-decoration: none;
+            font-weight: 600;
+        }
+
+        .login-link a:hover {
+            text-decoration: underline;
+        }
+
+        .alert {
+            padding: 12px 16px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+            font-size: 14px;
+        }
+
+        .alert-error {
+            background: #FEE2E2;
+            color: #991B1B;
+            border: 1px solid #FCA5A5;
+        }
+
+        .alert-success {
+            background: #D1FAE5;
+            color: #065F46;
+            border: 1px solid #6EE7B7;
+        }
+
+        @media (max-width: 480px) {
+            .register-container {
+                border-radius: 0;
+            }
+
+            .register-header {
+                padding: 30px 20px;
+            }
+
+            .register-body {
+                padding: 30px 20px;
+            }
+
+            .form-row {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+<div class="register-container">
+    <div class="register-header">
+        <h1>🚀 SmartApply</h1>
+        <p>Create your account to get started</p>
+    </div>
+
+    <div class="register-body">
+        <!-- Error Message -->
+        <div class="alert alert-error" id="errorAlert" style="display: none;">
+            <strong>Error!</strong> <span id="errorMessage"></span>
+        </div>
+
+        <!-- Success Message -->
+        <div class="alert alert-success" id="successAlert" style="display: none;">
+            <strong>Success!</strong> <span id="successMessage"></span>
+        </div>
+
+        <form id="registerForm">
+            <div class="form-row">
+                <div class="form-group">
+                    <label for="firstName">First Name</label>
+                    <input type="text" id="firstName" name="firstName" placeholder="Dave" required>
+                </div>
+
+                <div class="form-group">
+                    <label for="lastName">Last Name</label>
+                    <input type="text" id="lastName" name="lastName" placeholder="Stipanovic" required>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label for="email">Email Address</label>
+                <input type="email" id="email" name="email" placeholder="dave@smartapply.com" required>
+            </div>
+
+            <div class="form-group">
+                <label for="password">Password</label>
+                <div class="password-wrapper">
+                    <input type="password" id="password" name="password" placeholder="Create a password" required minlength="6">
+                    <span class="password-toggle" onclick="togglePassword()">👁️</span>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label for="confirmPassword">Confirm Password</label>
+                <div class="password-wrapper">
+                    <input type="password" id="confirmPassword" name="confirmPassword" placeholder="Confirm your password" required minlength="6">
+                    <span class="password-toggle" onclick="toggleConfirmPassword()">👁️</span>
+                </div>
+            </div>
+
+            <button type="submit" class="btn-register">Create Account</button>
+        </form>
+
+        <div class="divider">
+            <span>OR</span>
+        </div>
+
+        <div class="login-link">
+            Already have an account? <a href="/login">Login here</a>
+        </div>
+    </div>
+</div>
+
+<script>
+    // Password Toggle
+    function togglePassword() {
+        const passwordInput = document.getElementById('password');
+        const toggle = passwordInput.nextElementSibling;
+
+        if (passwordInput.type === 'password') {
+            passwordInput.type = 'text';
+            toggle.textContent = '🙈';
+        } else {
+            passwordInput.type = 'password';
+            toggle.textContent = '👁️';
+        }
+    }
+
+    function toggleConfirmPassword() {
+        const passwordInput = document.getElementById('confirmPassword');
+        const toggle = passwordInput.nextElementSibling;
+
+        if (passwordInput.type === 'password') {
+            passwordInput.type = 'text';
+            toggle.textContent = '🙈';
+        } else {
+            passwordInput.type = 'password';
+            toggle.textContent = '👁️';
+        }
+    }
+
+    // Form Submit
+    document.getElementById('registerForm').addEventListener('submit', async (e) => {
+        e.preventDefault();
+
+        const firstName = document.getElementById('firstName').value;
+        const lastName = document.getElementById('lastName').value;
+        const email = document.getElementById('email').value;
+        const password = document.getElementById('password').value;
+        const confirmPassword = document.getElementById('confirmPassword').value;
+
+        // Hide alerts
+        document.getElementById('errorAlert').style.display = 'none';
+        document.getElementById('successAlert').style.display = 'none';
+
+        // Validate passwords match
+        if (password !== confirmPassword) {
+            document.getElementById('errorMessage').textContent = 'Passwords do not match!';
+            document.getElementById('errorAlert').style.display = 'block';
+            return;
+        }
+
+        // Validate password length
+        if (password.length < 6) {
+            document.getElementById('errorMessage').textContent = 'Password must be at least 6 characters!';
+            document.getElementById('errorAlert').style.display = 'block';
+            return;
+        }
+
+        try {
+            const response = await fetch('/api/auth/register', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    email,
+                    password,
+                    firstName,
+                    lastName
+                })
+            });
+
+            const data = await response.json();
+
+            if (response.ok) {
+                // Save token to localStorage
+                localStorage.setItem('token', data.token);
+                localStorage.setItem('user', JSON.stringify(data.user));
+
+                // Show success
+                document.getElementById('successMessage').textContent = 'Registration successful! Redirecting...';
+                document.getElementById('successAlert').style.display = 'block';
+
+                // Redirect to dashboard
+                setTimeout(() => {
+                    window.location.href = '/';
+                }, 1500);
+            } else {
+                // Show error
+                document.getElementById('errorMessage').textContent = data.error || 'Registration failed';
+                document.getElementById('errorAlert').style.display = 'block';
+            }
+        } catch (error) {
+            document.getElementById('errorMessage').textContent = 'Connection error. Please try again.';
+            document.getElementById('errorAlert').style.display = 'block';
+        }
+    });
+</script>
+</body>
+</html>

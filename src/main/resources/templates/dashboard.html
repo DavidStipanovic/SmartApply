@@ -1,113 +1,3 @@
-<!--<!DOCTYPE html>-->
-<!--<html xmlns:th="http://www.thymeleaf.org">-->
-<!--<head th:replace="~{fragments/header :: head}"></head>-->
-<!--<body>-->
-<!--<div th:replace="~{fragments/header :: header}"></div>-->
-
-<!--<main class="main-content">-->
-<!--    <div class="container" style="max-width: 1400px;">-->
-
-<!--        &lt;!&ndash; Personalized Header &ndash;&gt;-->
-<!--        <div style="margin-bottom: var(&#45;&#45;spacing-2xl);">-->
-<!--            <h1 style="font-size: 2.5rem; font-weight: 700; color: var(&#45;&#45;text-primary); margin-bottom: var(&#45;&#45;spacing-sm);">-->
-<!--                <span th:text="${greeting}">Guten Morgen</span>, <span th:text="${userName}">Dave</span>-->
-<!--            </h1>-->
-<!--            <p style="color: var(&#45;&#45;text-secondary); font-size: 1.1rem;">-->
-<!--                Hier ist deine Übersicht für heute-->
-<!--            </p>-->
-<!--        </div>-->
-
-<!--        &lt;!&ndash; Widget Grid &ndash;&gt;-->
-<!--        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(350px, 1fr)); gap: var(&#45;&#45;spacing-xl); margin-bottom: var(&#45;&#45;spacing-2xl);">-->
-
-<!--            &lt;!&ndash; Quick Actions Widget &ndash;&gt;-->
-<!--            <div class="card">-->
-<!--                <h3 class="card-title">-->
-<!--                    <i class="fas fa-bolt"></i> Schnellaktionen-->
-<!--                </h3>-->
-<!--                <div class="card-body">-->
-<!--                    <div style="display: flex; flex-direction: column; gap: var(&#45;&#45;spacing-md);">-->
-<!--                        <a href="/applications/new" class="btn btn-primary" style="width: 100%; justify-content: center;">-->
-<!--                            <i class="fas fa-plus"></i> Neue Bewerbung-->
-<!--                        </a>-->
-<!--                        <a href="/applications" class="btn btn-secondary" style="width: 100%; justify-content: center;">-->
-<!--                            <i class="fas fa-list"></i> Alle Bewerbungen-->
-<!--                        </a>-->
-<!--                        <a href="/profile" class="btn btn-secondary" style="width: 100%; justify-content: center;">-->
-<!--                            <i class="fas fa-user"></i> Profil bearbeiten-->
-<!--                        </a>-->
-<!--                    </div>-->
-<!--                </div>-->
-<!--            </div>-->
-
-<!--            &lt;!&ndash; Calendar Widget (Placeholder) &ndash;&gt;-->
-<!--            <div class="card">-->
-<!--                <h3 class="card-title">-->
-<!--                    <i class="fas fa-calendar-alt"></i> Kalender-->
-<!--                </h3>-->
-<!--                <div class="card-body">-->
-<!--                    <div style="text-align: center; padding: var(&#45;&#45;spacing-xl); color: var(&#45;&#45;text-secondary);">-->
-<!--                        <i class="fas fa-calendar" style="font-size: 3rem; margin-bottom: var(&#45;&#45;spacing-md); opacity: 0.3;"></i>-->
-<!--                        <p style="margin: 0;">Kalender-Widget</p>-->
-<!--                        <p style="font-size: 0.875rem; margin-top: var(&#45;&#45;spacing-xs);">Coming soon...</p>-->
-<!--                    </div>-->
-<!--                </div>-->
-<!--            </div>-->
-
-<!--            &lt;!&ndash; Documents Widget (Placeholder) &ndash;&gt;-->
-<!--            <div class="card">-->
-<!--                <h3 class="card-title">-->
-<!--                    <i class="fas fa-folder"></i> Dokumente-->
-<!--                </h3>-->
-<!--                <div class="card-body">-->
-<!--                    <div style="text-align: center; padding: var(&#45;&#45;spacing-xl); color: var(&#45;&#45;text-secondary);">-->
-<!--                        <i class="fas fa-file-pdf" style="font-size: 3rem; margin-bottom: var(&#45;&#45;spacing-md); opacity: 0.3;"></i>-->
-<!--                        <p style="margin: 0;">Dokumenten-Management</p>-->
-<!--                        <p style="font-size: 0.875rem; margin-top: var(&#45;&#45;spacing-xs);">Coming soon...</p>-->
-<!--                    </div>-->
-<!--                </div>-->
-<!--            </div>-->
-
-<!--        </div>-->
-
-<!--        &lt;!&ndash; Recent Applications (Optional) &ndash;&gt;-->
-<!--        <div class="card" th:if="${recentApplications != null && !recentApplications.isEmpty()}">-->
-<!--            <div style="display: flex; justify-content: space-between; align-items: center; padding: var(&#45;&#45;spacing-lg); border-bottom: 1px solid var(&#45;&#45;border-color);">-->
-<!--                <h3 style="margin: 0; font-size: 1.25rem; font-weight: 600;">-->
-<!--                    <i class="fas fa-clock"></i> Neueste Bewerbungen-->
-<!--                </h3>-->
-<!--                <a href="/applications" style="color: var(&#45;&#45;primary-color); text-decoration: none; font-weight: 500;">-->
-<!--                    Alle anzeigen <i class="fas fa-arrow-right"></i>-->
-<!--                </a>-->
-<!--            </div>-->
-<!--            <div style="padding: var(&#45;&#45;spacing-lg);">-->
-<!--                <div style="display: grid; gap: var(&#45;&#45;spacing-md);">-->
-<!--                    <div th:each="app : ${recentApplications}"-->
-<!--                         style="padding: var(&#45;&#45;spacing-md); border: 1px solid var(&#45;&#45;border-color); border-radius: var(&#45;&#45;border-radius); display: flex; justify-content: space-between; align-items: center;">-->
-<!--                        <div>-->
-<!--                            <div style="font-weight: 600; margin-bottom: var(&#45;&#45;spacing-xs);" th:text="${app.companyName}">Firma</div>-->
-<!--                            <div style="color: var(&#45;&#45;text-secondary); font-size: 0.875rem;" th:text="${app.position}">Position</div>-->
-<!--                        </div>-->
-<!--                        <div style="display: flex; align-items: center; gap: var(&#45;&#45;spacing-md);">-->
-<!--                            <span th:class="'status-badge status-' + ${#strings.toLowerCase(app.status)}"-->
-<!--                                  th:text="${app.status.displayName}">-->
-<!--                                Status-->
-<!--                            </span>-->
-<!--                            <a th:href="@{/applications/{id}(id=${app.id})}" class="btn btn-secondary" style="padding: var(&#45;&#45;spacing-xs) var(&#45;&#45;spacing-md);">-->
-<!--                                <i class="fas fa-eye"></i> Details-->
-<!--                            </a>-->
-<!--                        </div>-->
-<!--                    </div>-->
-<!--                </div>-->
-<!--            </div>-->
-<!--        </div>-->
-
-<!--    </div>-->
-<!--</main>-->
-
-<!--<div th:replace="~{fragments/footer :: footer}"></div>-->
-<!--</body>-->
-<!--</html>-->
 
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org">
@@ -121,7 +11,7 @@
         <!-- Personalized Header -->
         <div style="margin-bottom: var(--spacing-2xl);">
             <h1 style="font-size: 2.5rem; font-weight: 700; color: var(--text-primary); margin-bottom: var(--spacing-sm);">
-                <span th:text="${greeting}">Guten Morgen</span>, <span th:text="${userName}">Dave</span>
+                <span th:text="${greeting}">Guten Morgen</span>, <span id="userName">Dave</span>
             </h1>
             <p style="color: var(--text-secondary); font-size: 1.1rem;">
                 Hier ist deine Übersicht für heute
@@ -202,5 +92,24 @@
 </main>
 
 <div th:replace="~{fragments/footer :: footer}"></div>
+<script>
+    // User Info aus localStorage laden
+    function loadUserInfo() {
+        const user = JSON.parse(localStorage.getItem('user'));
+
+        if (user && user.fullName) {
+            // Nur den Vornamen zeigen
+            const firstName = user.fullName.split(' ')[0];
+            document.getElementById('userName').textContent = firstName;
+        } else {
+            // Fallback wenn kein User im localStorage
+            document.getElementById('userName').textContent = 'Dave';
+        }
+    }
+
+    // Beim Laden der Seite ausführen
+    document.addEventListener('DOMContentLoaded', loadUserInfo);
+</script>
+
 </body>
 </html>

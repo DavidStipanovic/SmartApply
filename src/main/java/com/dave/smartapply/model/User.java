@@ -43,6 +43,25 @@ public class User {
     @Column(nullable = false)
     private LocalDateTime updatedAt;
 
+    // === NEUE PROFIL-FELDER ===
+    @Column(length = 100)
+    private String jobTitle; // z.B. "Senior Java Developer"
+
+    @Column(length = 50)
+    private String phone;
+
+    @Column(length = 2000)
+    private String aboutMe;
+
+    private String linkedinUrl;
+    private String githubUrl;
+    private String xingUrl;
+
+    // Adresse
+    private String street;
+    private String city;
+    private String zipCode;
+
     // Konstruktoren
     public User() {}
 
@@ -54,7 +73,7 @@ public class User {
         this.isApproved = false;
     }
 
-    // Getters
+
     public Long getId() {
         return id;
     }
@@ -135,4 +154,31 @@ public class User {
     public void setFullName(String fullName) {
         this.fullName = fullName;
     }
+
+    public String getJobTitle() { return jobTitle; }
+    public void setJobTitle(String jobTitle) { this.jobTitle = jobTitle; }
+
+    public String getPhone() { return phone; }
+    public void setPhone(String phone) { this.phone = phone; }
+
+    public String getAboutMe() { return aboutMe; }
+    public void setAboutMe(String aboutMe) { this.aboutMe = aboutMe; }
+
+    public String getLinkedinUrl() { return linkedinUrl; }
+    public void setLinkedinUrl(String linkedinUrl) { this.linkedinUrl = linkedinUrl; }
+
+    public String getGithubUrl() { return githubUrl; }
+    public void setGithubUrl(String githubUrl) { this.githubUrl = githubUrl; }
+
+    public String getXingUrl() { return xingUrl; }
+    public void setXingUrl(String xingUrl) { this.xingUrl = xingUrl; }
+
+    public String getStreet() { return street; }
+    public void setStreet(String street) { this.street = street; }
+
+    public String getCity() { return city; }
+    public void setCity(String city) { this.city = city; }
+
+    public String getZipCode() { return zipCode; }
+    public void setZipCode(String zipCode) { this.zipCode = zipCode; }
 }

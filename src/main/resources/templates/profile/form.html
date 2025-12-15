@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/header :: head}"></head>
+<body>
+<div th:replace="~{fragments/header :: header}"></div>
+
+<main class="main-content">
+    <div class="container" style="max-width: 900px;">
+
+        <div th:if="${successMessage}" class="alert alert-success">
+            <i class="fas fa-check-circle"></i>
+            <span th:text="${successMessage}">Success</span>
+        </div>
+        <div th:if="${errorMessage}" class="alert alert-error">
+            <i class="fas fa-exclamation-circle"></i>
+            <span th:text="${errorMessage}">Error</span>
+        </div>
+
+        <div class="page-header">
+            <div>
+                <h1 class="page-title">Mein Profil</h1>
+                <p style="color: var(--text-secondary); margin: 0;">
+                    Verwalte deine persönlichen Daten
+                </p>
+            </div>
+        </div>
+
+        <div class="card">
+            <form action="/profile" method="post" th:object="${user}">
+
+                <h3 class="card-title" style="margin-bottom: var(--spacing-lg);">
+                    <i class="fas fa-user-circle"></i> Persönliche Daten
+                </h3>
+
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: var(--spacing-lg);">
+                    <div class="form-group">
+                        <label for="firstName" class="form-label">
+                            <i class="fas fa-user"></i> Vorname *
+                        </label>
+                        <input type="text"
+                               id="firstName"
+                               th:field="*{firstName}"
+                               class="form-input"
+                               required>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="lastName" class="form-label">
+                            <i class="fas fa-user"></i> Nachname *
+                        </label>
+                        <input type="text"
+                               id="lastName"
+                               th:field="*{lastName}"
+                               class="form-input"
+                               required>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label for="jobTitle" class="form-label">
+                        <i class="fas fa-briefcase"></i> Aktueller Jobtitel
+                    </label>
+                    <input type="text"
+                           id="jobTitle"
+                           th:field="*{jobTitle}"
+                           class="form-input"
+                           placeholder="z.B. Senior Java Developer">
+                </div>
+
+                <div class="form-group">
+                    <label for="aboutMe" class="form-label">
+                        <i class="fas fa-align-left"></i> Über mich
+                    </label>
+                    <textarea id="aboutMe"
+                              th:field="*{aboutMe}"
+                              class="form-textarea"
+                              placeholder="Kurze Beschreibung deiner Person..."></textarea>
+                </div>
+
+                <hr style="border: 0; border-top: 1px solid var(--border-color); margin: var(--spacing-xl) 0;">
+
+                <h3 style="margin-top: var(--spacing-xl); margin-bottom: var(--spacing-lg); color: var(--text-primary);">
+                    <i class="fas fa-address-book"></i> Kontakt & Links
+                </h3>
+
+                <div class="form-group">
+                    <label for="phone" class="form-label">
+                        <i class="fas fa-phone"></i> Telefon
+                    </label>
+                    <input type="tel"
+                           id="phone"
+                           th:field="*{phone}"
+                           class="form-input"
+                           placeholder="+49 123 456789">
+                </div>
+
+                <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: var(--spacing-lg);">
+                    <div class="form-group">
+                        <label for="linkedinUrl" class="form-label">
+                            <i class="fab fa-linkedin"></i> LinkedIn
+                        </label>
+                        <input type="url"
+                               id="linkedinUrl"
+                               th:field="*{linkedinUrl}"
+                               class="form-input"
+                               placeholder="https://linkedin.com/...">
+                    </div>
+
+                    <div class="form-group">
+                        <label for="githubUrl" class="form-label">
+                            <i class="fab fa-github"></i> GitHub
+                        </label>
+                        <input type="url"
+                               id="githubUrl"
+                               th:field="*{githubUrl}"
+                               class="form-input"
+                               placeholder="https://github.com/...">
+                    </div>
+
+                    <div class="form-group">
+                        <label for="xingUrl" class="form-label">
+                            <i class="fab fa-xing"></i> Xing
+                        </label>
+                        <input type="url"
+                               id="xingUrl"
+                               th:field="*{xingUrl}"
+                               class="form-input"
+                               placeholder="https://xing.com/...">
+                    </div>
+                </div>
+
+                <hr style="border: 0; border-top: 1px solid var(--border-color); margin: var(--spacing-xl) 0;">
+
+                <h3 style="margin-top: var(--spacing-xl); margin-bottom: var(--spacing-lg); color: var(--text-primary);">
+                    <i class="fas fa-map-marker-alt"></i> Adresse
+                </h3>
+
+                <div class="form-group">
+                    <label for="street" class="form-label">Straße & Hausnummer</label>
+                    <input type="text"
+                           id="street"
+                           th:field="*{street}"
+                           class="form-input">
+                </div>
+
+                <div style="display: grid; grid-template-columns: 1fr 2fr; gap: var(--spacing-lg);">
+                    <div class="form-group">
+                        <label for="zipCode" class="form-label">PLZ</label>
+                        <input type="text"
+                               id="zipCode"
+                               th:field="*{zipCode}"
+                               class="form-input">
+                    </div>
+
+                    <div class="form-group">
+                        <label for="city" class="form-label">Stadt</label>
+                        <input type="text"
+                               id="city"
+                               th:field="*{city}"
+                               class="form-input">
+                    </div>
+                </div>
+
+                <div style="display: flex; gap: var(--spacing-md); margin-top: var(--spacing-xl); justify-content: flex-end;">
+                    <a href="/" class="btn btn-secondary">
+                        <i class="fas fa-times"></i> Abbrechen
+                    </a>
+                    <button type="submit" class="btn btn-primary btn-lg">
+                        <i class="fas fa-save"></i> Profil speichern
+                    </button>
+                </div>
+            </form>
+        </div>
+
+    </div>
+</main>
+
+<div th:replace="~{fragments/footer :: footer}"></div>
+</body>
+</html>

@@ -111,4 +111,37 @@ public class UserService {
     public User save(User user) {
         return userRepository.save(user);
     }
+
+    // === HIER EINFÜGEN: ===
+
+    // Profil aktualisieren (Erweitert für alle Felder)
+    // Profil aktualisieren (Erweitert für alle Felder)
+    @Transactional
+    public User updateGenericProfile(Long userId, User formData) {
+        log.info("Updating profile for user ID: {}", userId);
+
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new RuntimeException("User nicht gefunden!"));
+
+        // Stammdaten
+        user.setFirstName(formData.getFirstName());
+        user.setLastName(formData.getLastName());
+        // Falls du ein Feld "fullName" hast, aktualisieren wir es auch:
+        if (user.getFirstName() != null && user.getLastName() != null) {
+            user.setFullName(user.getFirstName() + " " + user.getLastName());
+        }
+
+        // Neue Profil-Daten
+        user.setJobTitle(formData.getJobTitle());
+        user.setPhone(formData.getPhone());
+        user.setAboutMe(formData.getAboutMe());
+        user.setLinkedinUrl(formData.getLinkedinUrl());
+        user.setGithubUrl(formData.getGithubUrl());
+        user.setXingUrl(formData.getXingUrl());
+        user.setStreet(formData.getStreet());
+        user.setCity(formData.getCity());
+        user.setZipCode(formData.getZipCode());
+
+        return userRepository.save(user);
+    }
 }

@@ -7,137 +7,134 @@
 <main class="main-content">
     <div class="container">
 
-        <!-- Page Header -->
         <div class="page-header">
             <div>
-                <h1 class="page-title">Dashboard</h1>
-                <p style="color: var(--text-secondary); margin: 0;">Übersicht deiner Bewerbungen</p>
+                <h1 class="page-title">
+                    <span th:text="${greeting}">Hallo</span>,
+                    <span th:text="${#authentication.principal instanceof T(com.dave.smartapply.model.User) ? #authentication.principal.firstName : #authentication.name}">Dave</span>
+                </h1>
+                <p style="color: var(--text-secondary); margin: 0;">Hier ist deine Übersicht für heute</p>
             </div>
         </div>
 
-        <!-- Statistics Cards -->
-        <div class="stats-grid">
-            <div class="stat-card">
-                <div class="stat-header">
-                    <div>
-                        <div class="stat-value" th:text="${totalCount} ?: 0">0</div>
-                        <div class="stat-label">Gesamt</div>
-                    </div>
-                    <div class="stat-icon primary">
-                        <i class="fas fa-briefcase"></i>
-                    </div>
-                </div>
-            </div>
+        <div style="display: grid; grid-template-columns: 2fr 1fr; gap: var(--spacing-xl); align-items: start;">
 
-            <div class="stat-card">
-                <div class="stat-header">
-                    <div>
-                        <div class="stat-value" th:text="${activeCount} ?: 0">0</div>
-                        <div class="stat-label">Aktiv</div>
-                    </div>
-                    <div class="stat-icon warning">
-                        <i class="fas fa-hourglass-half"></i>
-                    </div>
-                </div>
-            </div>
+            <div style="display: flex; flex-direction: column; gap: var(--spacing-xl);">
 
-            <div class="stat-card">
-                <div class="stat-header">
-                    <div>
-                        <div class="stat-value" th:text="${interviewCount} ?: 0">0</div>
-                        <div class="stat-label">Vorstellungsgespräche</div>
+                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: var(--spacing-xl);">
+                    <div class="card">
+                        <div class="card-header">
+                            <h2 class="card-title"><i class="fas fa-bolt"></i> Schnellaktionen</h2>
+                        </div>
+                        <div class="card-body" style="display: flex; flex-direction: column; gap: var(--spacing-md);">
+                            <a href="/applications/new" class="btn btn-primary btn-lg" style="justify-content: center;">
+                                <i class="fas fa-plus"></i> Neue Bewerbung
+                            </a>
+                            <a href="/profile" class="btn btn-secondary" style="justify-content: center;">
+                                <i class="fas fa-user-edit"></i> Profil bearbeiten
+                            </a>
+                        </div>
                     </div>
-                    <div class="stat-icon primary">
-                        <i class="fas fa-users"></i>
-                    </div>
-                </div>
-            </div>
 
-            <div class="stat-card">
-                <div class="stat-header">
-                    <div>
-                        <div class="stat-value" th:text="${offerCount} ?: 0">0</div>
-                        <div class="stat-label">Zusagen</div>
-                    </div>
-                    <div class="stat-icon success">
-                        <i class="fas fa-check-circle"></i>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <!-- Recent Applications -->
-        <div class="card">
-            <div class="card-header">
-                <h2 class="card-title">Neueste Bewerbungen</h2>
-                <a href="/applications" class="btn btn-secondary btn-sm">
-                    Alle anzeigen <i class="fas fa-arrow-right"></i>
-                </a>
-            </div>
-            <div class="card-body">
-                <div th:if="${recentApplications != null and !recentApplications.isEmpty()}">
-                    <div class="applications-grid">
-                        <div th:each="app : ${recentApplications}" class="application-card"
-                             th:onclick="'window.location.href=\'/applications/' + ${app.id} + '\''">
-                            <div class="application-header">
-                                <div>
-                                    <h3 class="company-name" th:text="${app.companyName}">Firma</h3>
-                                    <p class="position-title" th:text="${app.position}">Position</p>
-                                </div>
-                                <span th:class="'status-badge status-' + ${#strings.toLowerCase(app.status)}"
-                                      th:text="${app.status?.displayName ?: 'Unbekannt'}">Status</span>
-                            </div>
-                            <div class="application-meta">
-                                <div class="meta-item">
-                                    <i class="fas fa-calendar meta-icon"></i>
-                                    <span th:text="${#temporals.format(app.applicationDate, 'dd.MM.yyyy')}">Datum</span>
-                                </div>
-                                <div class="meta-item" th:if="${app.deadline != null}">
-                                    <i class="fas fa-clock meta-icon"></i>
-                                    <span>Deadline: <span th:text="${#temporals.format(app.deadline, 'dd.MM.yyyy')}">Deadline</span></span>
-                                </div>
-                            </div>
+                    <div class="card">
+                        <div class="card-header">
+                            <h2 class="card-title"><i class="fas fa-calendar-alt"></i> Kalender</h2>
+                        </div>
+                        <div class="card-body" style="text-align: center; padding: var(--spacing-xl) 0;">
+                            <i class="fas fa-calendar-day" style="font-size: 3rem; color: var(--text-tertiary); margin-bottom: var(--spacing-md); display: block;"></i>
+                            <p style="color: var(--text-secondary);">Keine Termine</p>
                         </div>
                     </div>
                 </div>
 
-                <div th:if="${recentApplications == null or recentApplications.isEmpty()}" class="empty-state">
-                    <div class="empty-icon">📭</div>
-                    <h3>Noch keine Bewerbungen</h3>
-                    <p>Starte jetzt und erstelle deine erste Bewerbung!</p>
-                    <a href="/applications/new" class="btn btn-primary btn-lg">
-                        <i class="fas fa-plus"></i> Erste Bewerbung erstellen
-                    </a>
+                <div class="card">
+                    <div class="card-header">
+                        <h2 class="card-title"><i class="fas fa-folder-open"></i> Dokumente</h2>
+                    </div>
+                    <div class="card-body" style="text-align: center; padding: var(--spacing-lg);">
+                        <p style="color: var(--text-secondary);">Dokumentenverwaltung folgt...</p>
+                    </div>
                 </div>
-            </div>
-        </div>
 
-        <!-- Upcoming Deadlines -->
-        <div class="card" th:if="${upcomingDeadlines != null and !upcomingDeadlines.isEmpty()}" style="margin-top: var(--spacing-xl);">
-            <div class="card-header">
-                <h2 class="card-title">Anstehende Deadlines</h2>
-            </div>
-            <div class="card-body">
-                <div class="applications-grid">
-                    <div th:each="app : ${upcomingDeadlines}" class="application-card">
-                        <div class="application-header">
-                            <div>
-                                <h3 class="company-name" th:text="${app.companyName}">Firma</h3>
-                                <p class="position-title" th:text="${app.position}">Position</p>
+                <div class="card">
+                    <div class="card-header">
+                        <h2 class="card-title">Neueste Bewerbungen</h2>
+                        <a href="/applications" class="btn btn-secondary btn-sm">
+                            Alle anzeigen <i class="fas fa-arrow-right"></i>
+                        </a>
+                    </div>
+                    <div class="card-body">
+                        <div th:if="${recentApplications != null and !recentApplications.isEmpty()}">
+                            <div class="applications-grid">
+                                <div th:each="app : ${recentApplications}" class="application-card"
+                                     th:onclick="'window.location.href=\'/applications/' + ${app.id} + '\''">
+                                    <div class="application-header">
+                                        <div>
+                                            <h3 class="company-name" th:text="${app.companyName}">Firma</h3>
+                                            <p class="position-title" th:text="${app.position}">Position</p>
+                                        </div>
+                                        <span th:class="'status-badge status-' + ${#strings.toLowerCase(app.status)}"
+                                              th:text="${app.status?.displayName ?: 'Unbekannt'}">Status</span>
+                                    </div>
+                                    <div class="application-meta">
+                                        <div class="meta-item">
+                                            <i class="fas fa-calendar meta-icon"></i>
+                                            <span th:text="${#temporals.format(app.applicationDate, 'dd.MM.yyyy')}">Datum</span>
+                                        </div>
+                                    </div>
+                                </div>
                             </div>
-                            <span th:class="'status-badge status-' + ${#strings.toLowerCase(app.status)}"
-                                  th:text="${app.status?.displayName ?: 'Unbekannt'}">Status</span>
                         </div>
-                        <div class="application-meta">
-                            <div class="meta-item">
-                                <i class="fas fa-exclamation-triangle meta-icon" style="color: #f59e0b;"></i>
-                                <span style="color: #f59e0b; font-weight: 600;">
-                                        Deadline: <span th:text="${#temporals.format(app.deadline, 'dd.MM.yyyy')}">Deadline</span>
-                                    </span>
-                            </div>
+                        <div th:if="${recentApplications == null or recentApplications.isEmpty()}" class="empty-state">
+                            <div class="empty-icon">📭</div>
+                            <h3>Noch keine Bewerbungen</h3>
+                            <a href="/applications/new" class="btn btn-primary btn-lg">
+                                <i class="fas fa-plus"></i> Erste Bewerbung erstellen
+                            </a>
                         </div>
                     </div>
                 </div>
+
+            </div>
+
+            <div style="display: flex; flex-direction: column; gap: var(--spacing-xl);">
+
+                <div class="weather-card">
+                    <div class="container-img">
+                        <div class="cloud front">
+                            <span class="left-front"></span>
+                            <span class="right-front"></span>
+                        </div>
+                        <span class="sun sunshine"></span>
+                        <span class="sun"></span>
+                        <div class="cloud back">
+                            <span class="left-back"></span>
+                            <span class="right-back"></span>
+                        </div>
+                    </div>
+
+                    <div class="weather-card-header">
+                        <span id="weatherLocation">Lade Standort...</span>
+                        <span id="weatherDate">Datum...</span>
+                    </div>
+
+                    <span id="weatherTemp" class="temp">--°</span>
+
+                    <div class="temp-scale">
+                        <span>Celsius</span>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <div class="card-header">
+                        <h2 class="card-title"><i class="fas fa-plane-departure"></i> Urlaubsplanung</h2>
+                    </div>
+                    <div class="card-body" style="text-align: center; padding: var(--spacing-xl) 0;">
+                        <i class="fas fa-umbrella-beach" style="font-size: 3rem; color: var(--text-tertiary); margin-bottom: var(--spacing-md); display: block;"></i>
+                        <p style="color: var(--text-secondary);">Urlaub planen</p>
+                    </div>
+                </div>
+
             </div>
         </div>
 
@@ -145,5 +142,45 @@
 </main>
 
 <div th:replace="~{fragments/footer :: footer}"></div>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // 1. Datum auf Deutsch setzen
+        const dateElement = document.getElementById('weatherDate');
+        const now = new Date();
+        const options = { day: 'numeric', month: 'long' };
+        dateElement.textContent = now.toLocaleDateString('de-DE', options);
+
+        // 2. Wetter laden
+        if ("geolocation" in navigator) {
+            navigator.geolocation.getCurrentPosition(function(position) {
+                const lat = position.coords.latitude;
+                const lon = position.coords.longitude;
+
+                // Stadtname holen
+                fetch(`https://api.bigdatacloud.net/data/reverse-geocode-client?latitude=${lat}&longitude=${lon}&localityLanguage=de`)
+                    .then(response => response.json())
+                    .then(data => {
+                        const city = data.city || data.locality || "Dein Standort";
+                        const country = data.countryName || "";
+                        document.getElementById('weatherLocation').innerHTML = `${city}<br>${country}`;
+                    });
+
+                // Temperatur holen
+                fetch(`https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&current_weather=true`)
+                    .then(response => response.json())
+                    .then(data => {
+                        const temp = Math.round(data.current_weather.temperature);
+                        document.getElementById('weatherTemp').textContent = `${temp}°`;
+                    });
+            }, function(error) {
+                console.error("Standort Zugriff verweigert", error);
+                document.getElementById('weatherLocation').textContent = "München (Demo)";
+                document.getElementById('weatherTemp').textContent = "20°";
+            });
+        }
+    });
+</script>
+
 </body>
 </html>

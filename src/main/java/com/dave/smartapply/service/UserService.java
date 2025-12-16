@@ -4,6 +4,10 @@ import com.dave.smartapply.model.User;
 import com.dave.smartapply.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -19,6 +23,41 @@ public class UserService {
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
 
+
+    // UserService.java
+
+    @Transactional
+    public User getCurrentUser() {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+
+        if (authentication == null || !authentication.isAuthenticated() || "anonymousUser".equals(authentication.getPrincipal())) {
+            throw new IllegalStateException("Kein authentifizierter Benutzer im Kontext gefunden.");
+        }
+
+        Object principal = authentication.getPrincipal();
+        String extractedEmail = null;
+
+        // Logik zur Extraktion der E-Mail (unverändert)
+        if (principal instanceof UserDetails userDetails) {
+            extractedEmail = userDetails.getUsername();
+        } else if (principal instanceof User user) {
+            extractedEmail = user.getEmail();
+        } else if (principal instanceof String s) {
+            extractedEmail = s;
+        }
+
+        // Die finale E-Mail, die wir suchen
+        final String userEmailToSearch = extractedEmail;
+
+        if (userEmailToSearch == null) {
+            throw new IllegalStateException("Konnte E-Mail nicht aus dem Principal-Objekt extrahieren: " + principal.getClass().getName());
+        }
+
+        // 3. Suche den Benutzer in der Datenbank mit der korrekten Email
+        // Hier ist userEmailToSearch effektiv final und kann im Lambda verwendet werden
+        return userRepository.findByEmail(userEmailToSearch)
+                .orElseThrow(() -> new UsernameNotFoundException("Benutzer mit E-Mail " + userEmailToSearch + " nicht in Datenbank gefunden (obwohl authentifiziert)."));
+    }
     // User erstellen (Registrierung)
     @Transactional
     public User createUser(String email, String password, String firstName, String lastName) {

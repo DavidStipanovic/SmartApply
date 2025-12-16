@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<body>
+
+<div th:fragment="sidebar" class="app-sidebar">
+    <div class="sidebar-header">
+        <div class="logo-icon"><i class="fas fa-layer-group"></i></div>
+        <span class="logo-text">SmartApply</span>
+    </div>
+
+    <nav class="sidebar-nav">
+        <p class="nav-label">Hauptmenü</p>
+
+        <a href="/" class="nav-item" th:classappend="${activePage == 'dashboard'} ? 'active'">
+            <i class="fas fa-home"></i> <span>Dashboard</span>
+        </a>
+
+        <a href="/calendar" class="nav-item" th:classappend="${activePage == 'calendar'} ? 'active'">
+            <i class="fas fa-calendar-alt"></i> <span>Kalender</span>
+        </a>
+
+        <a href="/applications" class="nav-item" th:classappend="${activePage == 'applications'} ? 'active'">
+            <i class="fas fa-briefcase"></i> <span>Bewerbungen</span>
+        </a>
+
+        <a href="/notes" class="nav-item" th:classappend="${activePage == 'notes'} ? 'active'">
+            <i class="fas fa-sticky-note"></i> <span>Notizen</span>
+        </a>
+
+        <a href="/documents" class="nav-item" th:classappend="${activePage == 'documents'} ? 'active'">
+            <i class="fas fa-folder"></i> <span>Dokumente</span>
+        </a>
+    </nav>
+
+    <div class="sidebar-footer">
+        <p class="nav-label" style="margin-top: 0;">System</p>
+
+        <a href="/settings" class="nav-item" th:classappend="${activePage == 'settings'} ? 'active'">
+            <i class="fas fa-cog"></i> <span>Einstellungen</span>
+        </a>
+
+        <a href="/profile" class="user-profile-mini">
+            <div class="user-avatar">
+                <span th:text="${#authentication.name.substring(0,1)}">D</span>
+            </div>
+            <div class="user-info">
+                <span class="user-name" th:text="${#authentication.name}">User</span>
+                <span class="user-role">Free Plan</span>
+            </div>
+        </a>
+    </div>
+</div>
+
+</body>
+</html>

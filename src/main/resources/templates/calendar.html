@@ -1,0 +1,376 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/header :: head}"></head>
+<script src='https://cdn.jsdelivr.net/npm/fullcalendar@6.1.8/index.global.min.js'></script>
+
+<body>
+<div th:replace="~{fragments/header :: header}"></div>
+
+<main class="main-content">
+    <div class="container">
+
+        <div class="page-header">
+            <div>
+                <h1 class="page-title">Dein Kalender</h1>
+                <p style="color: var(--text-secondary);">Organisiere deine Termine und Fristen</p>
+            </div>
+            <button onclick="openModal()" class="btn btn-primary">
+                <i class="fas fa-plus"></i> Neuer Termin
+            </button>
+        </div>
+
+        <div class="card" style="padding: 0; overflow: hidden;">
+            <div id='calendar' style="padding: var(--spacing-lg);"></div>
+        </div>
+
+    </div>
+</main>
+
+<div id="eventModal" class="modal-overlay" style="display: none;">
+    <div class="modal-card">
+
+        <div class="modal-header">
+            <h3 class="modal-title" id="modalTitle">Termin planen</h3>
+            <button onclick="closeModal()"
+                    style="background:none; border:none; font-size: 1.5rem; cursor:pointer; color: var(--text-secondary);">
+                &times;
+            </button>
+        </div>
+
+        <form id="appointmentForm">
+            <input type="hidden" name="id" id="eventId">
+
+            <div class="modal-body">
+
+                <div class="form-group" style="margin-bottom: var(--spacing-md);">
+                    <label class="form-label">Kategorie</label>
+                    <input type="hidden" name="category" id="eventCategory" value="WORK">
+
+                    <div style="display: flex; gap: 15px; margin-top: 5px;">
+
+                        <div onclick="selectCategory('WORK', this)" class="color-circle selected" style="background: #ef4444;" title="Arbeit">
+                            <i class="fas fa-briefcase"></i>
+                        </div>
+
+                        <div onclick="selectCategory('LEISURE', this)" class="color-circle" style="background: #3b82f6;" title="Freizeit">
+                            <i class="fas fa-umbrella-beach"></i>
+                        </div>
+
+                        <div onclick="selectCategory('IMPORTANT', this)" class="color-circle" style="background: #f59e0b;" title="Wichtig">
+                            <i class="fas fa-exclamation"></i>
+                        </div>
+
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">Titel / Betreff *</label>
+                    <input type="text" name="title" id="eventTitle" class="form-input" placeholder="z.B. Meeting"
+                           required>
+                </div>
+
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: var(--spacing-md);">
+                    <div class="form-group">
+                        <label class="form-label">Startdatum *</label>
+                        <input type="date" name="startDate" id="startDate" class="form-input" required>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Startzeit *</label>
+                        <input type="time" name="startTime" id="startTime" class="form-input" required>
+                    </div>
+                </div>
+
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: var(--spacing-md); margin-top: var(--spacing-md);">
+                    <div class="form-group">
+                        <label class="form-label">Enddatum (Optional)</label>
+                        <input type="date" name="endDate" id="endDate" class="form-input">
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Endzeit (Optional)</label>
+                        <input type="time" name="endTime" id="endTime" class="form-input">
+                    </div>
+                </div>
+
+                <div class="form-group" style="margin-top: var(--spacing-lg);">
+                    <label class="form-label"><i class="fas fa-map-marker-alt"></i> Ort / Link</label>
+                    <input type="text" name="location" class="form-input" placeholder="Ort">
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label"><i class="fas fa-users"></i> Teilnehmer</label>
+                    <input type="text" name="participants" class="form-input" placeholder="E-Mails...">
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">Notizen</label>
+                    <textarea name="description" class="form-textarea" style="min-height: 80px;"
+                              placeholder="Details..."></textarea>
+                </div>
+
+            </div>
+
+            <div class="modal-footer"
+                 style="display: flex; justify-content: space-between; align-items: center; margin-top: 20px; padding-top: 20px; border-top: 1px solid var(--border-color);">
+
+                <button type="button" id="deleteBtn" onclick="deleteAppointment()" class="btn btn-danger"
+                        style="display: none;">
+                    <i class="fas fa-trash"></i> Löschen
+                </button>
+
+                <div style="display: flex; gap: 10px; margin-left: auto;">
+                    <button type="button" onclick="closeModal()" class="btn btn-secondary">Abbrechen</button>
+                    <button type="button" onclick="saveAppointment()" class="btn btn-primary">Speichern</button>
+                </div>
+            </div>
+        </form>
+    </div>
+</div>
+
+<div th:replace="~{fragments/footer :: footer}"></div>
+
+<style>
+    /* Styles wie gehabt + Anpassung für Radio Inputs */
+    input[type="radio"] {
+        margin-right: 5px;
+    }
+
+    /* ... Deine existierenden Styles für Modal & Calendar ... */
+    /* (Kopiere hier deine Styles von vorhin rein oder lass sie stehen wenn du nicht alles ersetzt) */
+    :root {
+        --fc-border-color: #f1f5f9;
+        --fc-button-text-color: #fff;
+        --fc-button-bg-color: var(--primary-color);
+        --fc-button-border-color: var(--primary-color);
+        --fc-button-hover-bg-color: var(--primary-dark);
+        --fc-button-hover-border-color: var(--primary-dark);
+        --fc-today-bg-color: rgba(99, 102, 241, 0.05);
+    }
+
+    .fc-button {
+        border-radius: 50px !important;
+        font-weight: 600 !important;
+        text-transform: capitalize !important;
+        padding: 8px 16px !important;
+        border: none !important;
+        box-shadow: var(--shadow-sm);
+    }
+
+    .fc-event {
+        border-radius: 6px;
+        padding: 2px 4px;
+        font-size: 0.85rem;
+        border: none;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        cursor: pointer;
+    }
+
+    .modal-overlay {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(0, 0, 0, 0.5);
+        z-index: 1000;
+        backdrop-filter: blur(4px);
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        padding: 20px;
+    }
+
+    .modal-card {
+        background: white;
+        padding: 30px;
+        border-radius: 20px;
+        width: 100%;
+        max-width: 600px;
+        box-shadow: 0 20px 50px rgba(0, 0, 0, 0.2);
+        animation: slideUp 0.3s ease-out;
+        max-height: 90vh;
+        overflow-y: auto;
+    }
+
+    @keyframes slideUp {
+        from {
+            transform: translateY(20px);
+            opacity: 0;
+        }
+        to {
+            transform: translateY(0);
+            opacity: 1;
+        }
+    }
+
+    .modal-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 20px;
+        border-bottom: 1px solid var(--border-color);
+        padding-bottom: 15px;
+    }
+
+    .modal-title {
+        margin: 0;
+        font-size: 1.25rem;
+    }
+
+    /* Moderne Farbauswahl Kreise */
+    .color-circle {
+        width: 30px; height: 30px; border-radius: 50%; cursor: pointer;
+        transition: transform 0.2s; border: 1px solid rgba(0,0,0,0.1);
+        display: flex; align-items: center; justify-content: center;
+    }
+    .color-circle:hover { transform: scale(1.1); }
+    .color-circle.selected { border: 3px solid #6366f1 !important; transform: scale(1.1); box-shadow: 0 4px 6px rgba(0,0,0,0.1); }
+    /* Kleines Icon im Kreis für Kalender-Kategorien */
+    .color-circle i { color: white; font-size: 0.8rem; pointer-events: none; }
+</style>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        var calendarEl = document.getElementById('calendar');
+        var calendar = new FullCalendar.Calendar(calendarEl, {
+            initialView: 'dayGridMonth',
+            headerToolbar: {
+                left: 'prev,next today',
+                center: 'title',
+                right: 'dayGridMonth,timeGridWeek,listWeek'
+            },
+            locale: 'de',
+            buttonText: {today: 'Heute', month: 'Monat', week: 'Woche', list: 'Liste'},
+            height: 'auto',
+            navLinks: true,
+            editable: false, // Drag & Drop erstmal aus, um Komplexität zu sparen
+            dayMaxEvents: true,
+            events: '/api/calendar/events',
+
+            // Klick auf leeres Feld -> Neuer Termin
+            dateClick: function (info) {
+                openModal(null, info.dateStr); // Kein Event, aber Datum
+            },
+
+            // Klick auf existierenden Termin -> Löschen möglich
+            eventClick: function (info) {
+                // Wir übergeben das Event-Objekt an openModal
+                openModal(info.event);
+            }
+        });
+        calendar.render();
+    });
+
+    // Funktion zum Öffnen (Unterscheidet zwischen Neu & Existierend)
+    function openModal(event = null, dateStr = null) {
+        const modal = document.getElementById('eventModal');
+        const form = document.getElementById('appointmentForm');
+        const deleteBtn = document.getElementById('deleteBtn');
+
+        // Reset Form
+        form.reset();
+
+        if (event) {
+            // EXISTIERENDER TERMIN
+            document.getElementById('modalTitle').textContent = "Termin verwalten";
+            document.getElementById('eventId').value = event.id; // ID setzen für Löschen
+            document.getElementById('eventTitle').value = event.title;
+
+            // Löschen Button anzeigen!
+            deleteBtn.style.display = 'block';
+
+            // Datum extrahieren ist bei FullCalendar Events etwas tricky,
+            // für jetzt lassen wir die Felder leer oder zeigen nur Info an.
+            // Das Löschen ist hier die wichtigste Funktion.
+
+        } else {
+            // NEUER TERMIN
+            document.getElementById('modalTitle').textContent = "Neuen Termin planen";
+            document.getElementById('eventId').value = ""; // Keine ID
+            deleteBtn.style.display = 'none'; // Löschen Button weg
+
+            if (dateStr) {
+                document.getElementById('startDate').value = dateStr;
+                document.getElementById('endDate').value = dateStr;
+            }
+        }
+
+        modal.style.display = 'flex';
+    }
+
+    function closeModal() {
+        document.getElementById('eventModal').style.display = 'none';
+    }
+
+    window.onclick = function (event) {
+        if (event.target == document.getElementById('eventModal')) closeModal();
+    }
+
+    // --- SPEICHERN ---
+    function saveAppointment() {
+        const form = document.querySelector('#appointmentForm');
+        const formData = new FormData(form);
+        const urlSearchParams = new URLSearchParams(formData).toString();
+        const token = localStorage.getItem('token');
+
+        if (!token) {
+            window.location.href = '/login';
+            return;
+        }
+
+        fetch('/calendar/create', {
+            method: 'POST',
+            headers: {
+                'Authorization': 'Bearer ' + token,
+                'Content-Type': 'application/x-www-form-urlencoded'
+            },
+            body: urlSearchParams
+        })
+            .then(response => {
+                if (response.ok) {
+                    window.location.href = '/calendar'; // Führt eine saubere GET-Anfrage durch!
+                } else {
+                    alert("Fehler beim Speichern. Bitte Konsole prüfen.");
+                    response.text().then(text => console.error("Serverantwort:", text));
+                }
+            });
+    }
+
+    // --- LÖSCHEN ---
+    function deleteAppointment() {
+        const id = document.getElementById('eventId').value;
+        if (!id) return; // Sollte nicht passieren
+
+       // if (!confirm("Möchtest du diesen Termin wirklich löschen?")) return;
+
+        const token = localStorage.getItem('token');
+
+        fetch('/calendar/delete/' + id, {
+            method: 'DELETE',
+            headers: {
+                'Authorization': 'Bearer ' + token
+            }
+        })
+            .then(response => {
+                if (response.ok) {
+                    closeModal();
+                    // HIER IST DIE WICHTIGE ÄNDERUNG:
+                    window.location.href = '/calendar'; // Führt eine saubere GET-Anfrage durch!
+                } else {
+                    alert("Fehler beim Löschen.");
+                }
+            });
+    }
+
+    // Neue Funktion für Kategorie-Auswahl
+    function selectCategory(value, element) {
+        // 1. Wert ins versteckte Feld schreiben
+        document.getElementById('eventCategory').value = value;
+
+        // 2. Optik aktualisieren (Klasse 'selected' verschieben)
+        document.querySelectorAll('.color-circle').forEach(c => c.classList.remove('selected'));
+        element.classList.add('selected');
+    }
+</script>
+
+</body>
+</html>

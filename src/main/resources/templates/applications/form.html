@@ -1,189 +1,106 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org">
 <head th:replace="~{fragments/header :: head}"></head>
-<body>
-<div th:replace="~{fragments/header :: header}"></div>
+
+<body th:with="activePage='applications'">
+
+<div th:replace="~{fragments/sidebar :: sidebar}"></div>
 
 <main class="main-content">
-    <div class="container" style="max-width: 900px;">
+    <div class="container" style="max-width: 800px;">
 
-        <!-- Page Header -->
         <div class="page-header">
             <div>
-                <h1 class="page-title" th:text="${isEdit} ? 'Bewerbung bearbeiten' : 'Neue Bewerbung'">Neue Bewerbung</h1>
-                <p style="color: var(--text-secondary); margin: 0;">
-                    <span th:if="${isEdit}">Aktualisiere die Bewerbungsdaten</span>
-                    <span th:unless="${isEdit}">Erfasse eine neue Bewerbung</span>
-                </p>
+                <a href="/applications" style="color: var(--text-secondary); text-decoration: none; margin-bottom: 10px; display: block;">
+                    <i class="fas fa-arrow-left"></i> Abbrechen
+                </a>
+                <h1 class="page-title" th:text="${appDetails.id == null ? 'Neue Bewerbung' : 'Bewerbung bearbeiten'}">Titel</h1>
             </div>
         </div>
 
-        <!-- Form Card -->
-        <div class="card">
-            <form th:action="${isEdit} ? '/applications/' + ${appDetails.id} : '/applications'"
-                  method="post"
-                  th:object="${appDetails}">
-                <input type="hidden" th:if="${isEdit}" th:field="*{id}" />
+        <form th:action="${appDetails.id == null} ? @{/applications} : @{/applications/{id}(id=${appDetails.id})}"
+              th:object="${appDetails}" method="post">
+            <input type="hidden" th:field="*{id}">
 
-                <!-- Firma & Position -->
-                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: var(--spacing-lg);">
-                    <div class="form-group">
-                        <label for="companyName" class="form-label">
-                            <i class="fas fa-building"></i> Firma *
-                        </label>
-                        <input type="text"
-                               id="companyName"
-                               th:field="*{companyName}"
-                               class="form-input"
-                               placeholder="z.B. Google Germany GmbH"
-                               required>
+            <div class="card" style="margin-bottom: 30px;">
+                <div class="card-header"><h2 class="card-title">Basisdaten</h2></div>
+                <div class="card-body">
+
+                    <div class="form-section">
+                        <label class="form-label">Unternehmen *</label>
+                        <input type="text" th:field="*{companyName}" class="modern-input" required>
                     </div>
 
-                    <div class="form-group">
-                        <label for="position" class="form-label">
-                            <i class="fas fa-briefcase"></i> Position *
-                        </label>
-                        <input type="text"
-                               id="position"
-                               th:field="*{position}"
-                               class="form-input"
-                               placeholder="z.B. Senior Java Developer"
-                               required>
-                    </div>
-                </div>
-
-                <!-- Status & Bewerbungsdatum -->
-                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: var(--spacing-lg);">
-                    <div class="form-group">
-                        <label for="status" class="form-label">
-                            <i class="fas fa-flag"></i> Status *
-                        </label>
-                        <select id="status"
-                                th:field="*{status}"
-                                class="form-select"
-                                required>
-                            <option th:each="s : ${allStatuses}"
-                                    th:value="${s}"
-                                    th:text="${s.displayName}">
-                                Status
-                            </option>
-                        </select>
+                    <div class="form-section">
+                        <label class="form-label">Position *</label>
+                        <input type="text" th:field="*{position}" class="modern-input" required>
                     </div>
 
-                    <div class="form-group">
-                        <label for="applicationDate" class="form-label">
-                            <i class="fas fa-calendar"></i> Bewerbungsdatum *
-                        </label>
-                        <input type="date"
-                               id="applicationDate"
-                               th:field="*{applicationDate}"
-                               class="form-input"
-                               required>
-                    </div>
-                </div>
-
-                <!-- Deadline & Gehaltsvorstellung -->
-                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: var(--spacing-lg);">
-                    <div class="form-group">
-                        <label for="deadline" class="form-label">
-                            <i class="fas fa-clock"></i> Deadline
-                        </label>
-                        <input type="date"
-                               id="deadline"
-                               th:field="*{deadline}"
-                               class="form-input">
+                    <div class="form-grid-2">
+                        <div class="form-section">
+                            <label class="form-label">Status</label>
+                            <select th:field="*{status}" class="modern-select">
+                                <option th:each="statusOpt : ${T(com.dave.smartapply.model.ApplicationStatus).values()}"
+                                        th:value="${statusOpt}" th:text="${statusOpt.displayName}"></option>
+                            </select>
+                        </div>
+                        <div class="form-section">
+                            <label class="form-label">Bewerbungsdatum</label>
+                            <input type="date" th:field="*{applicationDate}" class="modern-input">
+                        </div>
                     </div>
 
-                    <div class="form-group">
-                        <label for="salaryExpectation" class="form-label">
-                            <i class="fas fa-euro-sign"></i> Gehaltsvorstellung (€) *
-                        </label>
-                        <input type="number"
-                               id="salaryExpectation"
-                               th:field="*{salaryExpectation}"
-                               class="form-input"
-                               placeholder="z.B. 55000"
-                               min="0"
-                               required>
+                    <div class="form-grid-2">
+                        <div class="form-section">
+                            <label class="form-label">Link zur Stelle</label>
+                            <input type="url" th:field="*{jobUrl}" class="modern-input" placeholder="https://...">
+                        </div>
+                        <div class="form-section">
+                            <label class="form-label">Gehaltsvorstellung (€)</label>
+                            <input type="number" th:field="*{salaryExpectation}" class="modern-input" placeholder="50000">
+                        </div>
                     </div>
                 </div>
+            </div>
 
-                <!-- Kontaktdaten -->
-                <h3 style="margin-top: var(--spacing-xl); margin-bottom: var(--spacing-lg); color: var(--text-primary);">
-                    <i class="fas fa-address-book"></i> Kontaktinformationen
-                </h3>
+            <div class="card">
+                <div class="card-header"><h2 class="card-title">Kontakt & Details</h2></div>
+                <div class="card-body">
 
-                <div class="form-group">
-                    <label for="contactPerson" class="form-label">
-                        <i class="fas fa-user"></i> Ansprechpartner
-                    </label>
-                    <input type="text"
-                           id="contactPerson"
-                           th:field="*{contactPerson}"
-                           class="form-input"
-                           placeholder="z.B. Max Mustermann">
-                </div>
-
-                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: var(--spacing-lg);">
-                    <div class="form-group">
-                        <label for="contactEmail" class="form-label">
-                            <i class="fas fa-envelope"></i> E-Mail
-                        </label>
-                        <input type="email"
-                               id="contactEmail"
-                               th:field="*{contactEmail}"
-                               class="form-input"
-                               placeholder="max.mustermann@firma.de">
+                    <div class="form-grid-2">
+                        <div class="form-section">
+                            <label class="form-label">Ansprechpartner</label>
+                            <input type="text" th:field="*{contactPerson}" class="modern-input">
+                        </div>
+                        <div class="form-section">
+                            <label class="form-label">E-Mail</label>
+                            <input type="email" th:field="*{contactEmail}" class="modern-input">
+                        </div>
                     </div>
 
-                    <div class="form-group">
-                        <label for="contactPhone" class="form-label">
-                            <i class="fas fa-phone"></i> Telefon
-                        </label>
-                        <input type="tel"
-                               id="contactPhone"
-                               th:field="*{contactPhone}"
-                               class="form-input"
-                               placeholder="+49 123 456789">
+                    <div class="form-grid-2">
+                        <div class="form-section">
+                            <label class="form-label">Telefon</label>
+                            <input type="text" th:field="*{contactPhone}" class="modern-input">
+                        </div>
+                        <div class="form-section">
+                            <label class="form-label">Deadline (Optional)</label>
+                            <input type="date" th:field="*{deadline}" class="modern-input">
+                        </div>
                     </div>
-                </div>
 
-                <!-- Job URL -->
-                <div class="form-group">
-                    <label for="jobUrl" class="form-label">
-                        <i class="fas fa-link"></i> Link zur Stellenanzeige
-                    </label>
-                    <input type="url"
-                           id="jobUrl"
-                           th:field="*{jobUrl}"
-                           class="form-input"
-                           placeholder="https://...">
-                </div>
+                    <div class="form-section">
+                        <label class="form-label">Notizen</label>
+                        <textarea th:field="*{notes}" class="modern-textarea"></textarea>
+                    </div>
 
-                <!-- Notizen -->
-                <div class="form-group">
-                    <label for="notes" class="form-label">
-                        <i class="fas fa-sticky-note"></i> Notizen
-                    </label>
-                    <textarea id="notes"
-                              th:field="*{notes}"
-                              class="form-textarea"
-                              placeholder="Wichtige Informationen, Besonderheiten, etc."></textarea>
-                </div>
+                    <div style="margin-top: 20px; text-align: right;">
+                        <button type="submit" class="btn btn-primary" style="padding: 10px 30px;">Speichern</button>
+                    </div>
 
-                <!-- Action Buttons -->
-                <div style="display: flex; gap: var(--spacing-md); margin-top: var(--spacing-xl); justify-content: flex-end;">
-                    <a href="/applications" class="btn btn-secondary">
-                        <i class="fas fa-times"></i> Abbrechen
-                    </a>
-                    <button type="submit" class="btn btn-primary btn-lg">
-                        <i class="fas fa-save"></i>
-                        <span th:text="${isEdit} ? 'Aktualisieren' : 'Erstellen'">Speichern</span>
-                    </button>
                 </div>
-            </form>
-        </div>
-
+            </div>
+        </form>
     </div>
 </main>
 

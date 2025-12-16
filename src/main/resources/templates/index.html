@@ -3,8 +3,9 @@
 <head th:replace="~{fragments/header :: head}"></head>
 <script src='https://cdn.jsdelivr.net/npm/fullcalendar@6.1.8/index.global.min.js'></script>
 
-<body>
-<div th:replace="~{fragments/header :: header}"></div>
+<body th:with="activePage='dashboard'">
+
+<div th:replace="~{fragments/sidebar :: sidebar}"></div>
 
 <main class="main-content">
     <div class="container">
@@ -19,62 +20,42 @@
             </div>
         </div>
 
-        <div style="display: grid; grid-template-columns: 2fr 1fr; gap: var(--spacing-xl); align-items: start;">
+        <div style="display: grid; grid-template-columns: 2fr 1fr; gap: 30px; align-items: start;">
 
-            <div style="display: flex; flex-direction: column; gap: var(--spacing-xl);">
+            <div style="display: flex; flex-direction: column; gap: 30px;">
 
-                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: var(--spacing-xl);">
-
-                    <div class="card">
-                        <div class="card-header">
-                            <h2 class="card-title"><i class="fas fa-bolt"></i> Schnellaktionen</h2>
-                        </div>
-                        <div class="card-body" style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px;">
-
-                            <a href="/applications/new" class="quick-action-btn btn-primary-soft">
-                                <i class="fas fa-briefcase"></i>
-                                <span>Bewerbung</span>
-                            </a>
-
-                            <button onclick="openNoteModal()" class="quick-action-btn btn-yellow-soft">
-                                <i class="fas fa-sticky-note"></i>
-                                <span>Notiz</span>
-                            </button>
-
-                            <a href="#" onclick="alert('Upload Modul folgt bald!')" class="quick-action-btn btn-blue-soft">
-                                <i class="fas fa-cloud-upload-alt"></i>
-                                <span>Upload</span>
-                            </a>
-
-                            <a href="/profile" class="quick-action-btn btn-gray-soft">
-                                <i class="fas fa-user-cog"></i>
-                                <span>Profil</span>
-                            </a>
-
-                        </div>
+                <div class="card">
+                    <div class="card-header">
+                        <h2 class="card-title"><i class="fas fa-bolt"></i> Schnellaktionen</h2>
                     </div>
+                    <div class="card-body" style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px;">
+                        <a href="/applications/new" class="quick-action-btn btn-primary-soft">
+                            <i class="fas fa-briefcase"></i> <span>Bewerbung</span>
+                        </a>
+                        <button onclick="openNoteModal()" class="quick-action-btn btn-yellow-soft">
+                            <i class="fas fa-sticky-note"></i> <span>Notiz</span>
+                        </button>
+                        <a href="#" onclick="alert('Upload Modul folgt bald!')" class="quick-action-btn btn-blue-soft">
+                            <i class="fas fa-cloud-upload-alt"></i> <span>Upload</span>
+                        </a>
+                        <a href="/profile" class="quick-action-btn btn-gray-soft">
+                            <i class="fas fa-user-cog"></i> <span>Profil</span>
+                        </a>
+                    </div>
+                </div>
 
-                    <div class="card"
-                         onclick="window.location.href='/calendar'"
-                         style="overflow: hidden; display: flex; flex-direction: column; height: 100%; cursor: pointer; transition: transform 0.2s;">
-
-                        <div class="card-header">
-                            <h2 class="card-title">
-                                <i class="fas fa-calendar-alt"></i> Übersicht
-                            </h2>
-                        </div>
-
-                        <div class="card-body" style="padding: 10px 15px 15px 15px;">
-                            <div id="miniCalendar"></div>
-                        </div>
+                <div class="card" onclick="window.location.href='/calendar'" style="cursor: pointer;">
+                    <div class="card-header">
+                        <h2 class="card-title"><i class="fas fa-calendar-alt"></i> Übersicht</h2>
+                    </div>
+                    <div class="card-body" style="padding: 10px 15px;">
+                        <div id="miniCalendar"></div>
                     </div>
                 </div>
 
                 <div class="card">
-                    <div class="card-header">
-                        <h2 class="card-title"><i class="fas fa-folder-open"></i> Dokumente</h2>
-                    </div>
-                    <div class="card-body" style="text-align: center; padding: var(--spacing-lg);">
+                    <div class="card-header"><h2 class="card-title"><i class="fas fa-folder-open"></i> Dokumente</h2></div>
+                    <div class="card-body" style="text-align: center; padding: 20px;">
                         <p style="color: var(--text-secondary);">Dokumentenverwaltung folgt...</p>
                     </div>
                 </div>
@@ -120,8 +101,7 @@
 
             </div>
 
-            <div style="display: flex; flex-direction: column; gap: var(--spacing-xl);">
-
+            <div style="display: flex; flex-direction: column; gap: 30px;">
                 <div class="weather-card">
                     <div class="container-img">
                         <div class="cloud front"><span class="left-front"></span><span class="right-front"></span></div>
@@ -134,20 +114,19 @@
                         <span id="weatherDate">Datum...</span>
                     </div>
                     <span id="weatherTemp" class="temp">--°</span>
-                    <div class="temp-scale"><span>Celsius</span></div>
                 </div>
 
-                <div class="card" onclick="window.location.href='/notes'" style="cursor: pointer; transition: transform 0.2s;">
-                    <div class="card-header">
+                <div class="card" onclick="window.location.href='/notes'"
+                     style="cursor: pointer; transition: transform 0.2s; text-align: center; padding: 30px 0;">
+                    <div class="card-header" style="justify-content: center;">
                         <h2 class="card-title"><i class="fas fa-layer-group"></i> Meine Notizen</h2>
                     </div>
-                    <div class="card-body" style="text-align: center; padding: var(--spacing-xl) 0;">
-                        <div style="position: relative; width: 60px; height: 60px; margin: 0 auto var(--spacing-md) auto;">
+                    <div class="card-body">
+                        <div style="position: relative; width: 60px; height: 60px; margin: 0 auto 10px auto;">
                             <i class="fas fa-sticky-note" style="font-size: 3rem; color: #fef3c7; position: absolute; top: 0; left: 10px; transform: rotate(5deg);"></i>
                             <i class="fas fa-sticky-note" style="font-size: 3rem; color: #fcd34d; position: absolute; top: 5px; left: 0; transform: rotate(-5deg);"></i>
                         </div>
                         <p style="color: var(--text-primary); font-weight: 600;">Alle Notizen anzeigen</p>
-                        <p style="color: var(--text-secondary); font-size: 0.9rem;">Verwalten & Löschen</p>
                     </div>
                 </div>
 
@@ -159,80 +138,32 @@
 
 <div th:replace="~{fragments/footer :: footer}"></div>
 
-<div id="noteModal" class="modal-overlay" style="display: none;">
-    <div class="modal-card" id="noteCard" style="background-color: #ffffff; transition: background-color 0.3s;">
-        <div class="modal-header" style="border-bottom: none;">
+<div id="noteModal" class="modal-overlay">
+    <div class="modal-card" id="noteCard">
+        <div class="modal-header">
             <h3 class="modal-title">Schnelle Notiz</h3>
             <button onclick="closeNoteModal()" style="background:none; border:none; font-size: 1.5rem; cursor:pointer;">&times;</button>
         </div>
         <form id="noteForm">
             <div class="modal-body">
                 <input type="hidden" name="color" id="noteColor" value="white">
-                <input type="text" name="title" class="form-input" placeholder="Titel..."
-                       style="font-weight: bold; border: none; padding: 10px 0; font-size: 1.1rem; background: transparent;" required>
-                <textarea name="content" class="form-textarea" placeholder="Schreib was runter..."
-                          style="border: none; resize: none; min-height: 120px; background: transparent; padding: 10px 0;" required></textarea>
+                <input type="text" name="title" class="form-input" placeholder="Titel..." required>
+                <textarea name="content" class="form-textarea" placeholder="Schreib was runter..." required></textarea>
 
                 <div style="margin-top: 15px; display: flex; gap: 10px;">
-                    <div onclick="selectColor('white', this)" class="color-circle" style="background: #ffffff; border: 2px solid #e5e7eb;"></div>
+                    <div onclick="selectColor('white', this)" class="color-circle selected" style="background: #ffffff;"></div>
                     <div onclick="selectColor('red', this)" class="color-circle" style="background: #fecaca;"></div>
                     <div onclick="selectColor('yellow', this)" class="color-circle" style="background: #fef3c7;"></div>
                     <div onclick="selectColor('green', this)" class="color-circle" style="background: #bbf7d0;"></div>
                     <div onclick="selectColor('blue', this)" class="color-circle" style="background: #bfdbfe;"></div>
                 </div>
             </div>
-            <div class="modal-footer" style="border-top: none; display: flex; justify-content: flex-end; margin-top: 10px;">
-                <button type="button" onclick="saveNote()" class="btn btn-primary" style="border-radius: 20px;">Speichern</button>
+            <div class="modal-footer" style="margin-top: 20px; text-align: right;">
+                <button type="button" onclick="saveNote()" class="btn btn-primary">Speichern</button>
             </div>
         </form>
     </div>
 </div>
-
-<style>
-    /* --------------------------------------
-       HIER WAR DER FEHLER: MODAL STYLES WAREN NICHT DA!
-       -------------------------------------- */
-    .modal-overlay {
-        position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-        background: rgba(0,0,0,0.5); z-index: 2000;
-        display: flex; justify-content: center; align-items: center;
-        backdrop-filter: blur(4px);
-    }
-    .modal-card {
-        background: white; padding: 30px; border-radius: 20px;
-        width: 100%; max-width: 500px; box-shadow: 0 20px 50px rgba(0,0,0,0.2);
-        animation: slideUp 0.3s ease-out;
-    }
-    @keyframes slideUp { from { transform: translateY(20px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
-    .modal-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
-    .modal-title { margin: 0; font-size: 1.25rem; }
-
-    /* Mini Kalender Styles */
-    #miniCalendar .fc { font-family: inherit; }
-    #miniCalendar .fc-theme-standard td, #miniCalendar .fc-theme-standard th, #miniCalendar .fc-scrollgrid { border: none !important; }
-    #miniCalendar .fc-col-header-cell-cushion { color: var(--text-secondary); font-size: 0.75rem; text-transform: uppercase; font-weight: 700; padding-bottom: 10px !important; }
-    #miniCalendar .fc-daygrid-day-number { font-size: 0.9rem; color: var(--text-primary); padding: 4px; z-index: 2; text-decoration: none !important; }
-    #miniCalendar .fc-daygrid-day:hover { background-color: #f1f5f9; border-radius: 10px; cursor: pointer; }
-    #miniCalendar .fc-day-today { background: transparent !important; }
-    #miniCalendar .fc-day-today .fc-daygrid-day-number { background-color: var(--primary-color); color: white !important; border-radius: 50%; width: 28px; height: 28px; display: flex; justify-content: center; align-items: center; margin: 2px auto; box-shadow: 0 2px 5px rgba(99, 102, 241, 0.4); }
-    #miniCalendar .fc-event { border-radius: 4px; font-size: 0.65rem; padding: 1px 4px; margin-top: 2px; border: none; }
-    #miniCalendar .fc-toolbar-title { font-size: 1.1rem !important; font-weight: 700; margin-left: 5px; }
-    #miniCalendar .fc-toolbar-chunk:first-child { display: flex; }
-
-    /* Schnellaktionen Buttons */
-    .quick-action-btn { display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 20px; text-align: center; gap: 10px; height: 100%; border: none; border-radius: 12px; text-decoration: none; transition: transform 0.2s, filter 0.2s; cursor: pointer; font-weight: 600; font-size: 0.9rem; }
-    .quick-action-btn:hover { transform: translateY(-3px); filter: brightness(0.95); }
-    .quick-action-btn i { font-size: 1.5rem; margin-bottom: 5px; }
-    .btn-primary-soft { background-color: #e0e7ff; color: #4338ca; }
-    .btn-yellow-soft { background-color: #fef3c7; color: #d97706; }
-    .btn-blue-soft { background-color: #dbeafe; color: #2563eb; }
-    .btn-gray-soft { background-color: #f1f5f9; color: #475569; }
-
-    /* Farbauswahl Kreise */
-    .color-circle { width: 30px; height: 30px; border-radius: 50%; cursor: pointer; transition: transform 0.2s; border: 1px solid rgba(0, 0, 0, 0.05); }
-    .color-circle:hover { transform: scale(1.2); }
-    .color-circle.selected { border: 2px solid #6366f1 !important; transform: scale(1.1); }
-</style>
 
 <script>
     document.addEventListener('DOMContentLoaded', function () {
@@ -273,7 +204,7 @@
                 initialView: 'dayGridMonth',
                 locale: 'de',
                 height: 320,
-                headerToolbar: { left: 'title', center: '', right: '' },
+                headerToolbar: {left: 'title', center: '', right: ''},
                 events: '/api/calendar/events',
                 dayHeaderFormat: {weekday: 'narrow'},
                 fixedWeekCount: false,
@@ -286,39 +217,26 @@
         }
     });
 
-    // --- 3. NOTIZ MODAL FUNKTIONEN (Globaler Scope) ---
-
+    // --- MODAL FUNKTIONEN ---
     function openNoteModal() {
-        // Sicherer Zugriff auf das Modal
         const modal = document.getElementById('noteModal');
         if (modal) {
-            modal.style.display = 'flex';
-        } else {
-            console.error("Fehler: Das Modal 'noteModal' wurde nicht gefunden!");
+            modal.style.display = 'flex'; // Öffnet mit Flexbox (Zentrierung durch style.css)
         }
     }
 
     function closeNoteModal() {
         document.getElementById('noteModal').style.display = 'none';
         document.getElementById('noteForm').reset();
-        selectColor('white', null); // Reset Farbe
+        selectColor('white', null);
     }
 
     function selectColor(colorName, element) {
         document.getElementById('noteColor').value = colorName;
-        const colorMap = {
-            'white': '#ffffff', 'red': '#fecaca', 'yellow': '#fef3c7',
-            'green': '#bbf7d0', 'blue': '#bfdbfe'
-        };
+        const colorMap = { 'white': '#ffffff', 'red': '#fecaca', 'yellow': '#fef3c7', 'green': '#bbf7d0', 'blue': '#bfdbfe' };
         document.getElementById('noteCard').style.backgroundColor = colorMap[colorName];
-
-        // Entfernt Auswahl von allen Kreisen
         document.querySelectorAll('.color-circle').forEach(c => c.classList.remove('selected'));
-
-        // Fügt Auswahl zum geklickten Element hinzu
-        if (element) {
-            element.classList.add('selected');
-        }
+        if (element) element.classList.add('selected');
     }
 
     function saveNote() {
@@ -326,26 +244,16 @@
         const formData = new FormData(form);
         const token = localStorage.getItem('token');
 
-        if (!token) {
-            window.location.href = '/login';
-            return;
-        }
+        if (!token) { window.location.href = '/login'; return; }
 
         fetch('/notes/create', {
             method: 'POST',
-            headers: {
-                'Authorization': 'Bearer ' + token,
-                'Content-Type': 'application/x-www-form-urlencoded'
-            },
+            headers: { 'Authorization': 'Bearer ' + token, 'Content-Type': 'application/x-www-form-urlencoded' },
             body: new URLSearchParams(formData)
         })
             .then(response => {
                 if (response.ok) {
                     closeNoteModal();
-                    // KEIN ALERT MEHR!
-                    // Wir laden die Seite neu, damit die neue Notiz später im "Alle Notizen" Bereich erscheint
-                    // Oder wir lassen es einfach zugehen, wenn wir auf dem Dashboard bleiben wollen.
-                    // Fürs erste ist ein Reload sauber, um Caches zu leeren:
                     window.location.reload();
                 } else {
                     console.error("Fehler beim Speichern");

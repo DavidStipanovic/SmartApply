@@ -1,8 +1,10 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org">
 <head th:replace="~{fragments/header :: head}"></head>
-<body>
-<div th:replace="~{fragments/header :: header}"></div>
+
+<body th:with="activePage='notes'">
+
+<div th:replace="~{fragments/sidebar :: sidebar}"></div>
 
 <main class="main-content">
     <div class="container">
@@ -13,7 +15,7 @@
                 <p style="color: var(--text-secondary);">Deine Sammlung an Ideen und Notizen.</p>
             </div>
 
-            <button onclick="openNewNoteModal()" class="btn btn-primary" style="padding: 12px 24px; font-size: 1rem;">
+            <button onclick="openNewNoteModal()" class="btn btn-primary">
                 <i class="fas fa-plus"></i> Neue Notiz
             </button>
         </div>
@@ -32,7 +34,6 @@
                             (note.color == 'green' ? '#bbf7d0' : '#bfdbfe')))})">
 
                 <h3 th:text="${note.title}">Titel</h3>
-
                 <div class="note-content-preview" th:text="${note.content}">Inhalt...</div>
 
                 <div class="note-footer">
@@ -47,7 +48,7 @@
                 </div>
             </div>
 
-            <div th:if="${notes.empty}" style="grid-column: 1 / -1; text-align: center; padding: 80px; color: var(--text-secondary);">
+            <div th:if="${notes == null or notes.isEmpty()}" style="grid-column: 1 / -1; text-align: center; padding: 80px; color: var(--text-secondary);">
                 <i class="fas fa-lightbulb" style="font-size: 4rem; margin-bottom: 20px; color: #e5e7eb;"></i>
                 <p style="font-size: 1.2rem;">Klick auf "Neue Notiz" um zu starten!</p>
             </div>
@@ -59,11 +60,10 @@
 
 <div th:replace="~{fragments/footer :: footer}"></div>
 
-<div id="largeNoteModal" class="modal-overlay" style="display: none;">
-    <div class="modal-card" id="noteCard" style="background-color: #ffffff; transition: background-color 0.3s; width: 100%; max-width: 900px;">
-
-        <div class="modal-header" style="border-bottom: none; padding-bottom: 0;">
-            <h3 class="modal-title" id="modalTitleText" style="font-size: 1.5rem;">Notiz bearbeiten</h3>
+<div id="largeNoteModal" class="modal-overlay">
+    <div class="modal-card" id="noteCard" style="max-width: 900px;">
+        <div class="modal-header">
+            <h3 class="modal-title" id="modalTitleText">Notiz bearbeiten</h3>
             <button onclick="closeLargeNoteModal()" style="background:none; border:none; font-size: 2rem; cursor:pointer; color: var(--text-secondary);">&times;</button>
         </div>
 
@@ -72,15 +72,12 @@
                 <input type="hidden" name="id" id="noteId">
                 <input type="hidden" name="color" id="noteColor" value="white">
 
-                <input type="text" name="title" id="inputTitle" class="form-input" placeholder="Titel..."
-                       style="font-weight: 800; border: none; padding: 15px 0; font-size: 2rem; background: transparent;" required>
-
-                <textarea name="content" id="inputContent" class="form-textarea" placeholder="Schreib was..."
-                          style="border: none; resize: none; min-height: 300px; background: transparent; padding: 10px 0; font-size: 1.2rem; line-height: 1.6;" required></textarea>
+                <input type="text" name="title" id="inputTitle" class="form-input" placeholder="Titel..." required>
+                <textarea name="content" id="inputContent" class="form-textarea" placeholder="Schreib was..." style="min-height: 300px; font-size: 1.2rem;" required></textarea>
 
                 <div style="margin-top: 20px; border-top: 1px solid rgba(0,0,0,0.05); padding-top: 20px;">
                     <div style="display: flex; gap: 15px;">
-                        <div onclick="selectColor('white', this)" class="color-circle" style="background: #ffffff;"></div>
+                        <div onclick="selectColor('white', this)" class="color-circle"></div>
                         <div onclick="selectColor('red', this)" class="color-circle" style="background: #fecaca;"></div>
                         <div onclick="selectColor('yellow', this)" class="color-circle" style="background: #fef3c7;"></div>
                         <div onclick="selectColor('green', this)" class="color-circle" style="background: #bbf7d0;"></div>
@@ -89,129 +86,17 @@
                 </div>
             </div>
 
-            <div class="modal-footer" style="border-top: none; display: flex; justify-content: flex-end; margin-top: 20px;">
+            <div class="modal-footer" style="margin-top: 20px; text-align: right;">
                 <button type="button" onclick="closeLargeNoteModal()" class="btn btn-secondary" style="margin-right: 10px;">Abbrechen</button>
-                <button type="button" onclick="saveNote()" class="btn btn-primary" style="padding: 10px 30px; font-size: 1.1rem; border-radius: 30px;">
-                    <i class="fas fa-save"></i> Speichern
-                </button>
+                <button type="button" onclick="saveNote()" class="btn btn-primary">Speichern</button>
             </div>
         </form>
     </div>
 </div>
 
-<style>
-    /* Grid Layout */
-    .notes-grid {
-        display: grid;
-        grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-        gap: 25px;
-        align-items: start;
-    }
-
-    /* KARTEN DESIGN - FIXE HÖHE */
-    /* Grid Layout */
-    .notes-grid {
-        display: grid;
-        /* Etwas schmalere Karten, aber immer noch breit genug */
-        grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
-        gap: 20px; /* Gap leicht verkleinert */
-        align-items: start;
-    }
-
-    /* KARTEN DESIGN - KLEINERE FIXE HÖHE */
-    .note-card {
-        height: 220px; /* FIXE HÖHE: Reduziert von 280px */
-        border-radius: 14px; /* Ecken etwas kleiner */
-        padding: 20px; /* Padding reduziert */
-        box-shadow: 0 4px 6px rgba(0,0,0,0.02);
-        border: 1px solid rgba(0,0,0,0.05);
-        transition: all 0.2s ease;
-        display: flex;
-        flex-direction: column;
-        cursor: pointer;
-        overflow: hidden;
-        position: relative;
-    }
-
-    .note-card:hover {
-        transform: translateY(-4px); /* Etwas weniger Anhebung beim Hover */
-        box-shadow: 0 10px 20px rgba(0,0,0,0.1);
-    }
-
-    .note-card h3 {
-        font-size: 1rem; /* Titel etwas kleiner */
-        margin-bottom: 8px;
-        color: #1f2937;
-        font-weight: 700;
-        /* Titel max 2 Zeilen */
-        display: -webkit-box;
-        -webkit-line-clamp: 2;
-        -webkit-box-orient: vertical;
-        overflow: hidden;
-    }
-
-    /* Inhalt Preview mit "..." am Ende */
-    .note-content-preview {
-        color: #4b5563;
-        white-space: pre-wrap;
-        font-size: 0.9rem; /* Textgröße leicht reduziert */
-        line-height: 1.4;
-        flex-grow: 1;
-
-        /* Der Trick für "..." nach X Zeilen */
-        -webkit-line-clamp: 5; /* Maximal 5 Zeilen (angepasst an neue Höhe) */
-        -webkit-box-orient: vertical;
-        overflow: hidden;
-        text-overflow: ellipsis;
-    }
-
-    .note-footer {
-        margin-top: auto;
-        padding-top: 10px; /* Padding im Footer reduziert */
-        border-top: 1px solid rgba(0,0,0,0.05);
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-    }
-
-    /* Modal muss auch angepasst werden, damit es bei der gleichen Größe noch gut aussieht */
-    /* Modalanpassung: nur Padding reduziert */
-    .modal-card {
-        background: white;
-        padding: 30px; /* Reduziert von 40px */
-        border-radius: 20px;
-        box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
-        animation: slideUp 0.3s ease-out;
-    }
-
-    .color-circle {
-        width: 35px; height: 35px; /* Kreise etwas kleiner im Modal (von 40px) */
-        border-radius: 50%; cursor: pointer;
-        transition: transform 0.2s; border: 2px solid rgba(0,0,0,0.05);
-    }
-    .color-circle.selected { border: 3px solid #6366f1 !important; transform: scale(1.1); box-shadow: 0 4px 10px rgba(99, 102, 241, 0.3); }
-
-    /* Modal Styles (Korrektur: Zentrierung erzwingen) */
-    .modal-overlay {
-        position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-        background: rgba(0,0,0,0.6); z-index: 2000;
-
-        /* WICHTIG: Standardmäßig ausblenden! */
-        display: none;
-
-        /* Aber WENN es angezeigt wird (durch JS), dann zentrieren: */
-        justify-content: center;
-        align-items: center;
-
-        backdrop-filter: blur(5px);
-        padding: 20px;
-    }
-</style>
-
 <script>
     const modal = document.getElementById('largeNoteModal');
 
-    // 1. Modal öffnen für NEUE Notiz (leert alles)
     function openNewNoteModal() {
         document.getElementById('noteForm').reset();
         document.getElementById('noteId').value = ""; // Keine ID = Neu
@@ -220,23 +105,17 @@
         modal.style.display = 'flex';
     }
 
-    // 2. Modal öffnen für BEARBEITEN (füllt Daten)
     function editNote(element) {
-        // Daten aus den HTML-Attributen holen
         const id = element.getAttribute('data-id');
         const title = element.getAttribute('data-title');
         const content = element.getAttribute('data-content');
         const color = element.getAttribute('data-color');
 
-        // Formular füllen
         document.getElementById('noteId').value = id;
         document.getElementById('inputTitle').value = title;
         document.getElementById('inputContent').value = content;
         document.getElementById('modalTitleText').innerText = "Notiz bearbeiten";
-
-        // Farbe setzen
         selectColor(color, null);
-
         modal.style.display = 'flex';
     }
 
@@ -255,9 +134,6 @@
         document.querySelectorAll('.color-circle').forEach(c => c.classList.remove('selected'));
         if (element) {
             element.classList.add('selected');
-        } else {
-            // Wenn kein Element geklickt wurde (beim Laden), suchen wir den passenden Kreis
-            // Das ist optional, nur für die Optik
         }
     }
 
@@ -266,7 +142,6 @@
         const formData = new FormData(form);
         const token = localStorage.getItem('token');
 
-        // WICHTIG: Endpoint geändert auf /notes/save
         fetch('/notes/save', {
             method: 'POST',
             headers: {

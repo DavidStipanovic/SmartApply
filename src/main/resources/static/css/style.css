@@ -1,4 +1,18 @@
 /* =========================================
+   0. RESET & GRUNDLAGEN (FIX FÜR SIDEBAR)
+   ========================================= */
+*, *::before, *::after {
+    /* WICHTIG: Padding zählt zur Breite/Höhe dazu, nicht oben drauf! */
+    box-sizing: border-box;
+}
+
+.app-sidebar {
+    height: 100vh;       /* Fallback */
+    height: 100dvh;      /* Dynamic Viewport Height (Ignoriert Browser-Leisten besser) */
+    overflow-y: auto;    /* Erlaubt Scrollen, falls der Bildschirm sehr klein ist */
+}
+
+/* =========================================
    1. GLOBALES & VARIABLEN
    ========================================= */
 :root {
@@ -112,7 +126,6 @@ ul { list-style: none; padding: 0; margin: 0; }
     font-weight: 700; color: #4b5563;
 }
 .user-info { display: flex; flex-direction: column; flex: 1; }
-.user-name { font-size: 0.9rem; font-weight: 600; }
 .user-role { font-size: 0.75rem; color: var(--text-secondary); }
 
 /* =========================================
@@ -159,7 +172,8 @@ ul { list-style: none; padding: 0; margin: 0; }
 .quick-action-btn {
     display: flex; flex-direction: column; align-items: center;
     justify-content: center; padding: 20px; text-align: center; gap: 10px;
-    height: 100%; border: none; border-radius: 12px;
+    border: none;
+    border-radius: 12px;
     transition: transform 0.2s, filter 0.2s; cursor: pointer;
     font-weight: 600; font-size: 0.9rem;
 }
@@ -530,10 +544,6 @@ ul { list-style: none; padding: 0; margin: 0; }
 }
 .modern-textarea { min-height: 120px; resize: vertical; }
 
-/* Kleiner Fix für das Sidebar Profil Problem */
-.user-name {
-    white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 140px;
-}
 
 /* =========================================
    GLOBALES SIZING FIX
@@ -722,4 +732,199 @@ input[type="tel"] {
     gap: 25px;
     margin-bottom: 20px;
     max-width: 900px; /* Das ganze Grid nicht zu breit machen */
+}
+
+/* =========================================
+   SCHNELLAKTIONEN GRID (ENDGÜLTIG)
+   ========================================= */
+
+/* 1. Kontrolliert den Container (card-body) */
+.card-body.quick-actions-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+
+    /* WICHTIG: Setzt den vertikalen und horizontalen Abstand zwischen den Kacheln */
+    gap: 20px;
+
+    /* WICHTIG: Erzeugt den Abstand ZUM KARTENRAND (oben, unten, links, rechts) */
+    padding: 20px;
+}
+
+/* 2. Stellt sicher, dass die Kacheln gleich hoch sind */
+.quick-actions-grid .quick-action-btn {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+
+    /* WICHTIG: Erzwingt Gleichheit zwischen den Kacheln */
+    min-height: 150px;
+
+    /* Standard Styles */
+    padding: 15px; /* Etwas Puffer, falls der Text länger wird */
+    border-radius: 12px;
+    text-decoration: none;
+    transition: transform 0.2s;
+    font-weight: 600;
+}
+
+.quick-actions-grid .quick-action-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+}
+
+.quick-actions-grid .quick-action-btn i {
+    font-size: 2rem;
+    margin-bottom: 8px;
+}
+
+/* =========================================
+   SCHNELLAKTIONEN FINAL (V2)
+   ========================================= */
+
+.card-body.quick-actions-v2 {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 20px; /* Abstand ZWISCHEN den Kacheln */
+    padding: 20px; /* Abstand ZUM KARTENRAND */
+}
+
+/* Wichtig: Min-Höhe, um Gleichheit zu erzwingen */
+.quick-actions-v2 .quick-action-btn {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+
+    /* Jetzt greift min-height, da height: 100% gelöscht wurde */
+    min-height: 130px;
+
+    padding: 15px;
+    border-radius: 12px;
+    text-decoration: none;
+    transition: transform 0.2s, box-shadow 0.2s;
+    font-weight: 600;
+}
+
+.quick-actions-v2 .quick-action-btn:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.08);
+}
+
+.quick-actions-v2 .quick-action-btn i {
+    font-size: 1.8rem;
+    margin-bottom: 8px;
+}
+
+/* Styling für den User-Namen in der Sidebar (Vereinheitlicht) */
+.user-name {
+    /* Layout-Regeln (Fix für den langen Namen) */
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    max-width: 140px;
+
+    /* Styling-Regeln */
+    font-size: 0.9rem;
+    font-weight: 600;
+}
+
+/* =========================================
+   SETTINGS PAGE STYLES
+   ========================================= */
+
+/* --- Horizontal Scrollable Tabs --- */
+.settings-tabs-container {
+    display: flex;
+    gap: 25px;
+    overflow-x: auto; /* Erlaubt horizontales Scrollen */
+    white-space: nowrap; /* Verhindert Umbruch */
+    border-bottom: 1px solid var(--border-color);
+    margin-bottom: 30px;
+    padding-bottom: 1px; /* Für den aktiven Border */
+    /* Versteckt Scrollbar in Firefox/IE */
+    scrollbar-width: none;
+    -ms-overflow-style: none;
+}
+/* Versteckt Scrollbar in Webkit (Chrome, Safari) */
+.settings-tabs-container::-webkit-scrollbar {
+    display: none;
+}
+
+.setting-tab-item {
+    padding: 12px 5px;
+    color: var(--text-secondary);
+    font-weight: 600;
+    text-decoration: none;
+    border-bottom: 2px solid transparent;
+    transition: all 0.2s;
+}
+
+.setting-tab-item:hover {
+    color: var(--text-primary);
+}
+
+.setting-tab-item.active {
+    color: var(--primary-color);
+    border-bottom-color: var(--primary-color);
+}
+
+
+/* --- Inputs mit Icons --- */
+.input-icon-wrapper {
+    position: relative;
+    display: flex;
+    align-items: center;
+}
+
+.input-icon {
+    position: absolute;
+    left: 15px;
+    color: var(--text-secondary);
+    pointer-events: none; /* Klicks gehen durch das Icon durch */
+    z-index: 2;
+}
+
+/* Spezielle Klasse für Inputs, die ein Icon haben */
+.modern-input.with-icon,
+.modern-select.with-icon {
+    padding-left: 45px !important; /* Platz für das Icon schaffen */
+}
+
+
+/* --- File Upload Drag & Drop --- */
+.file-upload-area {
+    border: 2px dashed var(--border-color);
+    border-radius: 12px;
+    padding: 30px;
+    text-align: center;
+    cursor: pointer;
+    transition: all 0.2s;
+    background: #f9fafb;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+}
+
+.file-upload-area:hover,
+.file-upload-area.dragover {
+    border-color: var(--primary-color);
+    background: #eff6ff; /* Helles Blau */
+}
+
+
+/* --- Quill Rich Text Editor Anpassungen --- */
+.ql-toolbar.ql-snow {
+    border-top-left-radius: 12px;
+    border-top-right-radius: 12px;
+    border-color: var(--border-color);
+    font-family: inherit; /* Nutzt unsere Schriftart */
+}
+.ql-container.ql-snow {
+    border-bottom-left-radius: 12px;
+    border-bottom-right-radius: 12px;
+    border-color: var(--border-color);
+    font-family: inherit;
+    font-size: 1rem;
 }

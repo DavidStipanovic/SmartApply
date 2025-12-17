@@ -1,0 +1,222 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <th:block th:replace="~{fragments/header :: head}"></th:block>
+    <link href="https://cdn.quilljs.com/1.3.6/quill.snow.css" rel="stylesheet">
+</head>
+
+<body th:with="activePage='settings'">
+
+<div th:replace="~{fragments/sidebar :: sidebar}"></div>
+
+<main class="main-content">
+    <div class="container" style="max-width: 1000px;">
+
+        <form th:action="@{/settings/save}" th:object="${settingsDto}" method="post" enctype="multipart/form-data" id="settingsForm">
+
+            <div class="page-header" style="align-items: center; margin-bottom: 20px;">
+                <h1 class="page-title" style="font-size: 2rem; font-weight: 800; margin: 0;">Einstellungen</h1>
+                <div style="display: flex; gap: 10px;">
+                    <a href="/dashboard" class="btn btn-secondary">Abbrechen</a>
+                    <button type="submit" class="btn btn-primary">Speichern</button>
+                </div>
+            </div>
+
+            <div class="settings-tabs-container">
+                <a href="/settings" class="setting-tab-item" th:classappend="${activeTab == 'details'} ? 'active'">Meine Details</a>
+                <a href="#" class="setting-tab-item">Profil</a>
+                <a href="#" class="setting-tab-item">Passwort</a>
+                <a href="#" class="setting-tab-item">Team</a>
+                <a href="#" class="setting-tab-item">Plan</a>
+                <a href="#" class="setting-tab-item">Rechnung</a>
+                <a href="#" class="setting-tab-item">E-Mail</a>
+                <a href="#" class="setting-tab-item">Benachrichtigungen</a>
+                <a href="#" class="setting-tab-item">Integrationen</a>
+                <a href="#" class="setting-tab-item">API</a>
+                <a href="#" class="setting-tab-item" style="color: var(--danger-color); margin-left: auto;">Abmeldung</a>
+            </div>
+
+            <div class="card">
+                <div class="card-header">
+                    <h2 class="card-title">Persönliche Informationen</h2>
+                    <p class="card-subtitle">Verwalte deine persönlichen Daten und wie sie angezeigt werden.</p>
+                </div>
+                <div class="card-body">
+
+                    <div class="form-grid-2">
+                        <div class="form-section">
+                            <label class="form-label">Vorname *</label>
+                            <input type="text" class="modern-input" th:field="*{firstName}" required>
+                        </div>
+                        <div class="form-section">
+                            <label class="form-label">Nachname *</label>
+                            <input type="text" class="modern-input" th:field="*{lastName}" required>
+                        </div>
+                    </div>
+
+                    <div class="form-section">
+                        <label class="form-label">E-Mail-Adresse *</label>
+                        <div class="input-icon-wrapper">
+                            <i class="fas fa-envelope input-icon"></i>
+                            <input type="email" class="modern-input with-icon" th:field="*{email}" required>
+                        </div>
+                    </div>
+
+                    <div class="form-section" style="margin-top: 25px;">
+                        <label class="form-label">Profilfoto</label>
+                        <div class="file-upload-area" id="drop-zone">
+                            <i class="fas fa-cloud-upload-alt" style="font-size: 2.5rem; color: var(--primary-color); margin-bottom: 15px;"></i>
+                            <p style="margin-bottom: 5px; font-weight: 600;">Klicke zum Hochladen oder ziehe Datei hierher</p>
+                            <p style="font-size: 0.85rem; color: var(--text-secondary);">SVG, PNG, JPG oder GIF (max. 800x400px)</p>
+                            <input type="file" id="file-input" th:field="*{profileImageFile}" accept="image/png, image/jpeg, image/gif, image/svg+xml" style="display: none;">
+                        </div>
+                        <div id="file-preview-container" style="display: none; margin-top: 15px; align-items: center; gap: 15px;">
+                            <img id="image-preview" src="" alt="Vorschau" style="width: 60px; height: 60px; border-radius: 50%; object-fit: cover; border: 2px solid var(--border-color);">
+                            <span id="file-name-preview" style="font-size: 0.9rem; font-weight: 600;"></span>
+                            <button type="button" id="remove-file-btn" class="btn btn-sm btn-secondary" style="color: var(--danger-color);"><i class="fas fa-times"></i></button>
+                        </div>
+                    </div>
+
+                    <hr style="border: none; border-top: 1px solid var(--border-color); margin: 30px 0;">
+
+                    <div class="form-section">
+                        <label class="form-label">Rolle</label>
+                        <input type="text" class="modern-input" th:field="*{role}" placeholder="z.B. Product Designer">
+                    </div>
+
+                    <div class="form-grid-2">
+                        <div class="form-section">
+                            <label class="form-label">Land</label>
+                            <div class="input-icon-wrapper">
+                                <i class="fas fa-globe input-icon"></i>
+                                <select class="modern-select with-icon" th:field="*{country}">
+                                    <option value="">Bitte wählen...</option>
+                                    <option th:each="c : ${countryList}" th:value="${c}" th:text="${c}"></option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="form-section">
+                            <label class="form-label">Zeitzone</label>
+                            <div class="input-icon-wrapper">
+                                <i class="far fa-clock input-icon"></i>
+                                <select class="modern-select with-icon" th:field="*{timezone}">
+                                    <option value="">Bitte wählen...</option>
+                                    <option th:each="tz : ${timezoneList}" th:value="${tz}" th:text="${tz}"></option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="form-section">
+                        <label class="form-label">Bio <span style="font-weight: normal; color: var(--text-secondary);">(Kurzbeschreibung)</span></label>
+                        <div id="quill-editor-container" style="height: 150px;">
+                            <th:block th:utext="${settingsDto.bioHtml}"></th:block>
+                        </div>
+                        <input type="hidden" id="bio-html-input" th:field="*{bioHtml}">
+                    </div>
+
+                </div>
+            </div>
+        </form>
+
+    </div>
+</main>
+
+<div th:replace="~{fragments/footer :: footer}"></div>
+
+<script src="https://cdn.quilljs.com/1.3.6/quill.js"></script>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // --- 1. RICH TEXT EDITOR INITIALISIEREN (Quill) ---
+        var quill = new Quill('#quill-editor-container', {
+            theme: 'snow',
+            modules: {
+                toolbar: [
+                    ['bold', 'italic', 'underline'],
+                    [{ 'list': 'ordered'}, { 'list': 'bullet' }]
+                ]
+            },
+            placeholder: 'Schreib etwas über dich...'
+        });
+
+        // Beim Absenden des Formulars den HTML-Inhalt in das versteckte Input-Feld kopieren
+        var form = document.getElementById('settingsForm');
+        form.onsubmit = function() {
+            var bioHtml = document.querySelector('input[name=bioHtml]');
+            // Holen des HTML-Inhalts aus dem Editor
+            bioHtml.value = quill.root.innerHTML;
+        };
+
+
+        // --- 2. DATEI UPLOAD (Drag & Drop + Vorschau) ---
+        const dropZone = document.getElementById('drop-zone');
+        const fileInput = document.getElementById('file-input');
+        const previewContainer = document.getElementById('file-preview-container');
+        const imagePreview = document.getElementById('image-preview');
+        const fileNamePreview = document.getElementById('file-name-preview');
+        const removeFileBtn = document.getElementById('remove-file-btn');
+
+        // Klick auf Dropzone öffnet Dateidialog
+        dropZone.addEventListener('click', () => fileInput.click());
+
+        // Drag & Drop Events
+        ['dragenter', 'dragover'].forEach(eventName => {
+            dropZone.addEventListener(eventName, (e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                dropZone.classList.add('dragover');
+            }, false);
+        });
+
+        ['dragleave', 'drop'].forEach(eventName => {
+            dropZone.addEventListener(eventName, (e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                dropZone.classList.remove('dragover');
+            }, false);
+        });
+
+        dropZone.addEventListener('drop', (e) => {
+            const files = e.dataTransfer.files;
+            if (files.length > 0) {
+                fileInput.files = files; // Dateien dem Input zuweisen
+                handleFiles(files[0]);
+            }
+        });
+
+        fileInput.addEventListener('change', (e) => {
+            if (fileInput.files.length > 0) {
+                handleFiles(fileInput.files[0]);
+            }
+        });
+
+        removeFileBtn.addEventListener('click', (e) => {
+            e.stopPropagation(); // Verhindert Öffnen des Dialogs
+            fileInput.value = ''; // Input leeren
+            previewContainer.style.display = 'none';
+            dropZone.style.display = 'flex';
+        });
+
+        function handleFiles(file) {
+            // Einfache Validierung auf Bildtyp
+            if (!file.type.startsWith('image/')) {
+                alert("Bitte nur Bilddateien hochladen.");
+                return;
+            }
+
+            // Vorschau anzeigen
+            const reader = new FileReader();
+            reader.onload = (e) => {
+                imagePreview.src = e.target.result;
+                fileNamePreview.textContent = file.name;
+                dropZone.style.display = 'none';
+                previewContainer.style.display = 'flex';
+            };
+            reader.readAsDataURL(file);
+        }
+    });
+</script>
+
+</body>
+</html>

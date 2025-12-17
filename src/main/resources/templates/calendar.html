@@ -27,78 +27,90 @@
 <div th:replace="~{fragments/footer :: footer}"></div>
 
 <div id="eventModal" class="modal-overlay" style="display: none;">
-    <div class="modal-card">
+    <div class="modal-card" style="width: 100%; max-width: 800px;">
 
-        <div class="modal-header">
-            <h3 class="modal-title" id="modalTitle">Termin planen</h3>
-            <button onclick="closeModal()" style="background:none; border:none; font-size: 1.5rem; cursor:pointer;">&times;</button>
+        <div class="modal-header" style="border-bottom: none; padding-bottom: 0;">
+            <h3 class="modal-title" id="modalTitle" style="font-size: 1.5rem;">Termin planen</h3>
+            <button onclick="closeModal()" style="background:none; border:none; font-size: 2rem; cursor:pointer; color: var(--text-secondary);">&times;</button>
         </div>
 
         <form id="appointmentForm">
             <input type="hidden" name="id" id="eventId">
 
-            <div class="modal-body">
+            <div class="modal-body" style="padding-top: 10px;">
 
                 <div class="form-section">
-                    <label class="form-label">Kategorie</label>
-                    <input type="hidden" name="category" id="eventCategory" value="WORK">
-                    <div style="display: flex; gap: 15px;">
-                        <div onclick="selectCategory('WORK', this)" class="color-circle selected" style="background: #ef4444;" title="Arbeit"><i class="fas fa-briefcase"></i></div>
-                        <div onclick="selectCategory('LEISURE', this)" class="color-circle" style="background: #3b82f6;" title="Freizeit"><i class="fas fa-umbrella-beach"></i></div>
-                        <div onclick="selectCategory('IMPORTANT', this)" class="color-circle" style="background: #f59e0b;" title="Wichtig"><i class="fas fa-exclamation"></i></div>
-                    </div>
-                </div>
-
-                <div class="form-section">
-                    <label class="form-label">Titel / Betreff *</label>
-                    <input type="text" name="title" id="eventTitle" class="modern-input" placeholder="z.B. Meeting" required>
+                    <input type="text" name="title" id="eventTitle" class="modern-input"
+                           placeholder="Titel des Termins..." required
+                           style="font-size: 1.3rem; padding: 15px; font-weight: 600; max-width: 100% !important;">
                 </div>
 
                 <div class="form-grid-2">
                     <div>
-                        <label class="form-label">Startdatum *</label>
-                        <input type="date" name="startDate" id="startDate" class="modern-input" required>
+                        <label class="form-label" style="font-size: 0.85rem; color: var(--text-secondary);">Start</label>
+                        <div style="display: flex; gap: 10px;">
+                            <input type="date" name="startDate" id="startDate" class="modern-input" required>
+                            <input type="time" name="startTime" id="startTime" class="modern-input" required>
+                        </div>
                     </div>
                     <div>
-                        <label class="form-label">Startzeit *</label>
-                        <input type="time" name="startTime" id="startTime" class="modern-input" required>
+                        <label class="form-label" style="font-size: 0.85rem; color: var(--text-secondary);">Ende (Optional)</label>
+                        <div style="display: flex; gap: 10px;">
+                            <input type="date" name="endDate" id="endDate" class="modern-input">
+                            <input type="time" name="endTime" id="endTime" class="modern-input">
+                        </div>
                     </div>
                 </div>
 
                 <div class="form-grid-2">
                     <div>
-                        <label class="form-label">Enddatum (Optional)</label>
-                        <input type="date" name="endDate" id="endDate" class="modern-input">
+                        <label class="form-label" style="font-size: 0.85rem; color: var(--text-secondary);">Ort / Link</label>
+                        <input type="text" name="location" class="modern-input" placeholder="z.B. Zoom oder Büro">
                     </div>
                     <div>
-                        <label class="form-label">Endzeit (Optional)</label>
-                        <input type="time" name="endTime" id="endTime" class="modern-input">
+                        <label class="form-label" style="font-size: 0.85rem; color: var(--text-secondary);">Teilnehmer</label>
+                        <input type="text" name="participants" class="modern-input" placeholder="E-Mails...">
                     </div>
                 </div>
 
                 <div class="form-section">
-                    <label class="form-label"><i class="fas fa-map-marker-alt"></i> Ort / Link</label>
-                    <input type="text" name="location" class="modern-input" placeholder="Ort oder Zoom-Link">
-                </div>
-
-                <div class="form-section">
-                    <label class="form-label"><i class="fas fa-users"></i> Teilnehmer</label>
-                    <input type="text" name="participants" class="modern-input" placeholder="E-Mails...">
-                </div>
-
-                <div class="form-section">
-                    <label class="form-label">Notizen</label>
-                    <textarea name="description" class="modern-textarea" style="min-height: 80px;" placeholder="Details..."></textarea>
+                    <textarea name="description" class="modern-textarea"
+                              style="min-height: 120px; font-size: 1rem; max-width: 100% !important;"
+                              placeholder="Notizen oder Beschreibung hinzufügen..."></textarea>
                 </div>
 
             </div>
 
-            <div class="modal-footer" style="display: flex; justify-content: space-between; align-items: center; margin-top: 20px; padding-top: 20px; border-top: 1px solid #e5e7eb;">
-                <button type="button" id="deleteBtn" onclick="deleteAppointment()" class="btn btn-secondary" style="display: none; color: #ef4444; background: #fee2e2;">
-                    <i class="fas fa-trash"></i> Löschen
-                </button>
+            <div class="modal-footer" style="display: flex; justify-content: space-between; align-items: center; margin-top: 20px; padding-top: 20px; border-top: 1px solid rgba(0,0,0,0.05);">
 
-                <div style="display: flex; gap: 10px; margin-left: auto;">
+                <div style="display: flex; align-items: center; gap: 15px;">
+                    <span style="font-size: 0.9rem; color: var(--text-secondary); font-weight: 600;">Kategorie:</span>
+                    <input type="hidden" name="category" id="eventCategory" value="WORK">
+
+                    <div style="display: flex; gap: 10px;">
+                        <div onclick="selectCategory('WORK', this)" class="color-circle selected"
+                             style="background: #fee2e2; border: 2px solid #ef4444; color: #b91c1c;"
+                             title="Arbeit">
+                            <i class="fas fa-briefcase"></i>
+                        </div>
+                        <div onclick="selectCategory('LEISURE', this)" class="color-circle"
+                             style="background: #dbeafe; border: 2px solid #3b82f6; color: #1e40af;"
+                             title="Freizeit">
+                            <i class="fas fa-umbrella-beach"></i>
+                        </div>
+                        <div onclick="selectCategory('IMPORTANT', this)" class="color-circle"
+                             style="background: #fef3c7; border: 2px solid #f59e0b; color: #b45309;"
+                             title="Wichtig">
+                            <i class="fas fa-exclamation"></i>
+                        </div>
+                    </div>
+                </div>
+
+                <div style="display: flex; gap: 10px;">
+                    <button type="button" id="deleteBtn" onclick="deleteAppointment()" class="btn btn-secondary"
+                            style="color: #ef4444; background: #fee2e2; display: none; border: none;">
+                        <i class="fas fa-trash"></i>
+                    </button>
                     <button type="button" onclick="closeModal()" class="btn btn-secondary">Abbrechen</button>
                     <button type="button" onclick="saveAppointment()" class="btn btn-primary">Speichern</button>
                 </div>
@@ -106,6 +118,33 @@
         </form>
     </div>
 </div>
+
+<style>
+    /* Spezifische Styles für die Kategorie-Kreise im Kalender (damit sie wie Tags aussehen) */
+    .color-circle {
+        width: 36px; height: 36px;
+        border-radius: 50%;
+        cursor: pointer;
+        display: flex; align-items: center; justify-content: center;
+        font-size: 0.9rem;
+        transition: transform 0.2s, box-shadow 0.2s;
+    }
+
+    .color-circle:hover {
+        transform: translateY(-2px);
+    }
+
+    .color-circle.selected {
+        transform: scale(1.15);
+        box-shadow: 0 4px 6px rgba(0,0,0,0.15);
+    }
+
+    /* Input Inputs im Modal sollen 100% Breite haben für den "Notizen"-Look */
+    #eventModal .modern-input,
+    #eventModal .modern-textarea {
+        max-width: 100% !important; /* Überschreibt die globale Begrenzung nur im Modal */
+    }
+</style>
 
 <script>
     document.addEventListener('DOMContentLoaded', function () {
@@ -146,15 +185,16 @@
 
         // Reset Form
         form.reset();
+        // Reset Categories
+        selectCategory('WORK', document.querySelector('.color-circle[title="Arbeit"]'));
 
         if (event) {
             // EXISTIERENDER TERMIN
-            document.getElementById('modalTitle').textContent = "Termin verwalten";
+            document.getElementById('modalTitle').textContent = "Termin bearbeiten";
             document.getElementById('eventId').value = event.id;
             document.getElementById('eventTitle').value = event.title;
-            // Hinweis: Für das korrekte Füllen von Datum/Zeit/Beschreibung bräuchte man hier
-            // mehr Logik, um die Daten aus dem Event-Objekt zu parsen.
-            // Das Löschen funktioniert aber über die ID.
+            // Hinweis: Datum/Zeit/Beschreibung müssten hier idealerweise via AJAX geholt werden
+            // oder aus extendedProps kommen, wenn sie im Calendar-Event-Objekt sind.
 
             deleteBtn.style.display = 'block';
         } else {
@@ -175,7 +215,6 @@
         document.getElementById('eventModal').style.display = 'none';
     }
 
-    // Modal schließen beim Klick auf Hintergrund
     window.onclick = function (event) {
         if (event.target == document.getElementById('eventModal')) closeModal();
     }
@@ -238,7 +277,7 @@
     function selectCategory(value, element) {
         document.getElementById('eventCategory').value = value;
         document.querySelectorAll('.color-circle').forEach(c => c.classList.remove('selected'));
-        element.classList.add('selected');
+        if(element) element.classList.add('selected');
     }
 </script>
 

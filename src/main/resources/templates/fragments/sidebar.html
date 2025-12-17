@@ -41,11 +41,12 @@
 
         <a href="/profile" class="user-profile-mini">
             <div class="user-avatar">
-                <span th:text="${#authentication.name.substring(0,1)}">D</span>
+                <span th:text="${currentUser.firstName != null ? currentUser.firstName.substring(0,1) : 'U'}">D</span>
             </div>
             <div class="user-info">
-                <span class="user-name" th:text="${#authentication.name}">User</span>
-                <span class="user-role">Free Plan</span>
+                <span class="user-name" th:text="${currentUser.firstName}">Dave</span>
+
+                <span class="user-role" th:text="${currentUser.jobTitle != null ? currentUser.jobTitle : 'Free Plan'}">Free Plan</span>
             </div>
         </a>
     </div>

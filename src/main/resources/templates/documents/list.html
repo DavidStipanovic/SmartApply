@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/header :: head}"></head>
+
+<body th:with="activePage='documents'">
+
+<div th:replace="~{fragments/sidebar :: sidebar}"></div>
+
+<main class="main-content">
+    <div class="container">
+
+        <div class="page-header">
+            <div>
+                <h1 class="page-title">Dokumente</h1>
+                <p style="color: var(--text-secondary);">Verwalte deine Lebensläufe und Zeugnisse</p>
+            </div>
+            <button onclick="alert('Upload kommt bald!')" class="btn btn-primary">
+                <i class="fas fa-cloud-upload-alt"></i> Datei hochladen
+            </button>
+        </div>
+
+        <div class="card" style="margin-bottom: 25px; padding: 15px;">
+            <div style="display: flex; gap: 15px;">
+                <input type="text" class="modern-input" placeholder="Dokument suchen..." style="max-width: 300px; padding: 10px;">
+                <select class="modern-select" style="max-width: 200px; padding: 10px;">
+                    <option>Alle Kategorien</option>
+                    <option>Lebenslauf</option>
+                    <option>Zeugnis</option>
+                    <option>Anschreiben</option>
+                </select>
+            </div>
+        </div>
+
+        <div class="card" style="padding: 0; overflow: hidden;">
+            <table style="width: 100%; border-collapse: collapse;">
+                <thead style="background: #f9fafb; border-bottom: 1px solid var(--border-color);">
+                <tr>
+                    <th style="text-align: left; padding: 15px 20px; color: var(--text-secondary); font-size: 0.85rem; text-transform: uppercase;">Name</th>
+                    <th style="text-align: left; padding: 15px 20px; color: var(--text-secondary); font-size: 0.85rem; text-transform: uppercase;">Kategorie</th>
+                    <th style="text-align: left; padding: 15px 20px; color: var(--text-secondary); font-size: 0.85rem; text-transform: uppercase;">Datum</th>
+                    <th style="text-align: right; padding: 15px 20px; color: var(--text-secondary); font-size: 0.85rem; text-transform: uppercase;">Größe</th>
+                    <th style="text-align: right; padding: 15px 20px; color: var(--text-secondary); font-size: 0.85rem; text-transform: uppercase;">Aktion</th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr th:each="doc : ${documents}" style="border-bottom: 1px solid var(--border-color); transition: background 0.2s;" onmouseover="this.style.background='#f9fafb'" onmouseout="this.style.background='white'">
+
+                    <td style="padding: 15px 20px; display: flex; align-items: center; gap: 15px;">
+                        <div style="width: 40px; height: 40px; border-radius: 8px; display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 0.9rem;"
+                             th:classappend="${doc.type == 'PDF'} ? 'bg-red-soft' : 'bg-blue-soft'">
+                            <i class="fas" th:classappend="${doc.type == 'PDF'} ? 'fa-file-pdf' : 'fa-file-word'"></i>
+                        </div>
+                        <div>
+                            <div style="font-weight: 600; color: var(--text-primary);" th:text="${doc.name}">Name</div>
+                            <div style="font-size: 0.8rem; color: var(--text-secondary);" th:text="${doc.type}">TYP</div>
+                        </div>
+                    </td>
+
+                    <td style="padding: 15px 20px;">
+                            <span style="background: #f3f4f6; color: #374151; padding: 4px 10px; border-radius: 12px; font-size: 0.8rem; font-weight: 600;"
+                                  th:text="${doc.category}">Kat</span>
+                    </td>
+
+                    <td style="padding: 15px 20px; color: var(--text-secondary); font-size: 0.9rem;">
+                        <i class="far fa-calendar-alt" style="margin-right: 5px;"></i>
+                        <span th:text="${#temporals.format(doc.uploadDate, 'dd.MM.yyyy')}"></span>
+                    </td>
+
+                    <td style="padding: 15px 20px; text-align: right; color: var(--text-secondary); font-family: monospace;" th:text="${doc.size}">
+                        0 MB
+                    </td>
+
+                    <td style="padding: 15px 20px; text-align: right;">
+                        <button class="btn btn-secondary btn-sm" style="color: var(--text-secondary);">
+                            <i class="fas fa-download"></i>
+                        </button>
+                        <button class="btn btn-secondary btn-sm" style="color: #ef4444; background: #fee2e2; border: none;">
+                            <i class="fas fa-trash"></i>
+                        </button>
+                    </td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+
+    </div>
+</main>
+
+<div th:replace="~{fragments/footer :: footer}"></div>
+
+<style>
+    .bg-red-soft { background: #fee2e2; color: #ef4444; }
+    .bg-blue-soft { background: #dbeafe; color: #2563eb; }
+</style>
+
+</body>
+</html>
